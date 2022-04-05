@@ -23,16 +23,23 @@ This repository provides smart contracts for a one way bridge from TCO2 carbon c
 - node > 16.0
 - pnpm > 6.20
 
+## Setup
+
+```shell
+pnpm install
+pnpm husky install
+```
+
 ## Hardhat usage
 
 ```shell
-yarn hardhat accounts
-yarn hardhat compile
-yarn hardhat clean
-yarn hardhat test
-yarn hardhat node
+pnpm hardhat accounts
+pnpm hardhat compile
+pnpm hardhat clean
+pnpm hardhat test
+pnpm hardhat node
 node scripts/sample-script.js
-yarn hardhat help
+pnpm hardhat help
 ```
 
 ## License
