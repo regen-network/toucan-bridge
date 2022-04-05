@@ -18,6 +18,11 @@ This repository provides smart contracts for a one way bridge from TCO2 carbon c
 
 (TODO, more description will come)
 
+## Dependencies
+
+- node > 16.0
+- pnpm > 6.20
+
 ## Hardhat usage
 
 ```shell
