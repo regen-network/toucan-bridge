@@ -3,7 +3,7 @@
 pragma solidity ^0.8.4;
 
 import "./Ownable.sol";
-import "./openzeppelin/contracts/security/Pausable.sol"
+import "@openzeppelin/contracts/security/Pausable.sol";
 
 /**
  * @dev Implementation of the smart contract for Regen Ledger self custody bridge.
