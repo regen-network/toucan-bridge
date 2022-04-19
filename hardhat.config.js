@@ -18,8 +18,24 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
  */
 
 module.exports = {
-	solidity: "0.8.13",
+	solidity: {
+		version: "0.8.13",
+		settings: {
+			optimizer: {
+				runs: 200,
+				enabled: true,
+			},
+		},
+	},
+	// paths: {
+	// 	sources: "./contracts/regen",
+	// 	tests: "./test",
+	// 	cache: "./cache",
+	// 	artifacts: "./artifacts",
+	// },
 	networks: {
+		// Hardhat comes built-in with a special network called hardhat. When using this network, an instance of the Hardhat Network will be automatically created when you run a task, script or test your smart contracts.
+		// default networks: hardhat, localhost ("http://127.0.0.1:8545")
 		// rinkeby: {
 		//   // url: `https://eth-ropsten.alchemyapi.io/v2/${ALCHEMY_API_KEY}`,
 		//   // url: "https://rinkeby.infura.io/v3/",

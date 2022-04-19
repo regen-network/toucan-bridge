@@ -26,6 +26,7 @@ This repository provides smart contracts for a one way bridge from TCO2 carbon c
 ## Setup
 
 ```shell
+git submodule sync
 pnpm install
 pnpm husky install
 ```
