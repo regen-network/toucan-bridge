@@ -46,12 +46,15 @@ contract ToucanBridge is Ownable, Pausable {
      * bridge event.
      */
     function bridge(
-        string memory recipient,
+        string calldata recipient,
         ToucanCarbonOffsets tco2,
         uint256 amount,
-        string memory note
+        string calldata note
     ) external whenNotPaused {
-        require(isRegenAddress(recipient), "recipient must a Regen Ledger account address");
+        require(
+            isRegenAddress(bytes(recipient)),
+            "recipient must a Regen Ledger account address"
+        );
         totalTransferred += amount;
 
         emit Bridge(msg.sender, recipient, address(tco2), amount);
@@ -66,9 +69,12 @@ contract ToucanBridge is Ownable, Pausable {
         // + burn (needs that functionality from the Toucan side)
     }
 
-    function isRegenAddress(string memory recipient) internal pure returns (bool) {
-        // TODO
-        // + verify recipient is valid regen address
+    function isRegenAddress(bytes memory recipient) internal pure returns (bool) {
+        // verification: checking if recipient starts with "regen1"
+        require(recipient.length >= 44, "regen address is at least 44 characters long");
+        bytes memory prefix = "regen1";
+        for (uint8 i = 0; i < 6; ++i)
+            require(prefix[i] == recipient[i], "regen address must start with 'regen1'");
         return true;
     }
 }
