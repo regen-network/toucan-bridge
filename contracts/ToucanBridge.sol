@@ -20,6 +20,12 @@ contract ToucanBridge is Ownable, Pausable {
     /** @dev total amount of tokens burned and signalled for transfer */
     uint256 public totalTransferred;
 
+    // ----------------------------------------
+    //      Events
+    // ----------------------------------------
+
+    event Bridge(address sender, string recipient, address tco2, uint256 amount);
+
     /**
      * @dev Sets the values for {owner} and {nctoRegistry}.
      */
@@ -48,6 +54,8 @@ contract ToucanBridge is Ownable, Pausable {
         require(isRegenAddress(recipient), "recipient must a Regen Ledger account address");
         totalTransferred += amount;
 
+        emit Bridge(msg.sender, recipient, address(tco2), amount);
+
         require(
             nctoRegistry.checkERC20(address(tco2)),
             "contract not part of the Toucan NCT registry"
@@ -55,8 +63,7 @@ contract ToucanBridge is Ownable, Pausable {
         tco2.retireFrom(msg.sender, amount);
 
         // TODO
-        // + burn
-        // + emit
+        // + burn (needs that functionality from the Toucan side)
     }
 
     function isRegenAddress(string memory recipient) internal pure returns (bool) {
