@@ -2,8 +2,12 @@
 
 pragma solidity ^0.8.4;
 
-import "./Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
+// import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
+import "./Ownable.sol";
+import "./toucan-contracts/contracts/interfaces/IToucanContractRegistry.sol";
+import "./toucan-contracts/contracts/ToucanCarbonOffsets.sol";
 
 /**
  * @dev Implementation of the smart contract for Regen Ledger self custody bridge.
@@ -11,7 +15,7 @@ import "@openzeppelin/contracts/security/Pausable.sol";
  * See README file for more information about the functionality
  */
 contract ToucanBridge is Ownable, Pausable {
-    address public nctoRegistry;
+    IToucanContractRegistry public nctoRegistry;
 
     /** @dev total amount of tokens burned and signalled for transfer */
     uint256 public totalTransferred;
@@ -19,7 +23,7 @@ contract ToucanBridge is Ownable, Pausable {
     /**
      * @dev Sets the values for {owner} and {nctoRegistry}.
      */
-    constructor(address owner, address nctoRegistry_) Ownable(owner) {
+    constructor(address owner, IToucanContractRegistry nctoRegistry_) Ownable(owner) {
         nctoRegistry = nctoRegistry_;
     }
 
@@ -31,17 +35,33 @@ contract ToucanBridge is Ownable, Pausable {
         _unpause();
     }
 
-
     /**
      * @dev burns Toucan TCO2 compatible tokens (whitelisted in ncto) and signals a
      * bridge event.
      */
-    function bridge(string memory recipient, address tco2, uint256 amount, string memory note)
-        external whenNotPaused() {
+    function bridge(
+        string memory recipient,
+        ToucanCarbonOffsets tco2,
+        uint256 amount,
+        string memory note
+    ) external whenNotPaused {
+        require(isRegenAddress(recipient), "recipient must a Regen Ledger account address");
+        totalTransferred += amount;
+
+        require(
+            nctoRegistry.checkERC20(address(tco2)),
+            "contract not part of the Toucan NCT registry"
+        );
+        tco2.retireFrom(msg.sender, amount);
+
+        // TODO
+        // + burn
+        // + emit
+    }
+
+    function isRegenAddress(string memory recipient) internal pure returns (bool) {
         // TODO
         // + verify recipient is valid regen address
-        // + check tco2 contract
-        // + transferFrom tco2
-        // + burn
+        return true;
     }
 }
