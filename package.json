@@ -22,7 +22,8 @@
 	},
 	"engines": {
 		"node": ">=16.0.0",
-		"pnpm": ">=6.20.0"
+		"yarn": ">=3.2.0",
+		"packageManager": "yarn@3.2.0"
 	},
 	"scripts": {
 		"build": "hardhat compile",
@@ -31,8 +32,6 @@
 		"test": "hardhat test"
 	},
 	"lint-staged": {
-		"**/{contracts,test,scripts}/**/*.{ts,js,sol}": [
-			"prettier --write"
-		]
+		"**/{contracts,test,scripts}/**/*.{ts,js,sol}": ["prettier --write"]
 	}
 }
