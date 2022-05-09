@@ -51,6 +51,7 @@ contract ToucanBridge is Ownable, Pausable {
         uint256 amount,
         string calldata note
     ) external whenNotPaused {
+        require(amount > 0, "amount must be positive");
         require(
             isRegenAddress(bytes(recipient)),
             "recipient must a Regen Ledger account address"

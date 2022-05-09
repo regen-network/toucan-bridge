@@ -47,6 +47,12 @@ describe("Token contract", function () {
 			);
 		});
 
+		it("should fail with non positive amount", async function () {
+			await expect(bridge.connect(addr1).bridge(recipient, tco2Even, 0, "note")).to.be.revertedWith(
+				"amount must be positive"
+			);
+		});
+
 		it("should fail with non regen recipient address", async function () {
 			await expect(
 				bridge.connect(addr1).bridge("cosmos1xrjg7dpdlfds8vhyj22hg5zhg9g7dwmlaxqsys", tco2Even, 10, "note")
