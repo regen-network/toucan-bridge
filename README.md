@@ -18,12 +18,14 @@ This repository provides smart contracts for a one way bridge from TCO2 carbon c
 
 (TODO, more description will come)
 
-## Dependencies
+## Setup
+
+### Dependencies
 
 - node > 16.0
 - pnpm > 6.20
 
-## Setup
+### Installation
 
 ```shell
 git submodule sync
@@ -31,7 +33,11 @@ pnpm install
 pnpm husky install
 ```
 
-## Hardhat usage
+## Contributing
+
+- get some Polygon Mumbai testnet tokens from [faucet](https://faucet.polygon.technology/).
+
+### Hardhat usage
 
 ```shell
 pnpm hardhat accounts
