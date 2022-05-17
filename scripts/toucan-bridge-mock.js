@@ -10,6 +10,7 @@ async function deploy() {
 	let receipt = await bridge.deployed();
 
 	console.log("Bridge deployed to %s", bridge.address);
+	// console.log("receipt", receipt)
 }
 
 // We recommend this pattern to be able to use async/await everywhere
@@ -21,4 +22,4 @@ deploy()
 		process.exit(1);
 	});
 
-// yarn hardhat run scripts/toucan-bridge-mock.js  --network rinkeby
+// yarn hardhat run scripts/toucan-bridge-mock.js  --network mumbai
