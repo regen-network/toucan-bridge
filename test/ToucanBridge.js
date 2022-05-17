@@ -8,6 +8,7 @@ const { ethers } = require("hardhat");
 describe("Token contract", function () {
 	let bridge;
 	let owner;
+	let regenBridge;
 	let addr1;
 	let addr2;
 	let nctFake = "0x1a6583dE167Cee533B5dbAe194D2e5858aaE7C01";
@@ -17,9 +18,9 @@ describe("Token contract", function () {
 	beforeEach(async function () {
 		// Get the ContractFactory and Signers here.
 		let Bridge = await ethers.getContractFactory("ToucanBridge");
-		[owner, addr1, addr2] = await ethers.getSigners();
+		[owner, regenBridge, addr1, addr2] = await ethers.getSigners();
 
-		bridge = await Bridge.deploy(owner.address, nctFake);
+		bridge = await Bridge.deploy(owner.address, regenBridge.address, nctFake);
 		await bridge.deployed();
 	});
 
@@ -62,6 +63,18 @@ describe("Token contract", function () {
 			await expect(bridge.connect(addr1).bridge(recipient, tco2Fake, 10, "note")).to.be.revertedWith(
 				"Pausable: paused"
 			);
+		});
+	});
+
+	describe("Issue TCO2 tokens", function () {
+		const regenSender = recipient;
+
+		it("only regen bridge can issue tokens", async function () {
+			let tx = bridge.connect(regenBridge).issueTCO2Tokens(regenSender, addr1.address, tco2Fake, 100, "note");
+			await expect(tx).to.emit(bridge, "Issue");
+
+			tx = bridge.connect(addr2).issueTCO2Tokens(regenSender, addr1.address, tco2Fake, 100, "note");
+			await expect(tx).to.be.revertedWith("only bridge can issue tokens");
 		});
 	});
 });

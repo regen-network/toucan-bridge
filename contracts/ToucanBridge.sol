@@ -20,6 +20,9 @@ contract ToucanBridge is Ownable, Pausable {
     /** @dev total amount of tokens burned and signalled for transfer */
     uint256 public totalTransferred;
 
+    // @dev address of the brideg wallet authorized to issue TCO2 tokens.
+    address public regenBridge;
+
     // ----------------------------------------
     //      Events
     // ----------------------------------------
@@ -30,9 +33,14 @@ contract ToucanBridge is Ownable, Pausable {
     event Issue(string sender, address recipient, address tco2, uint256 amount);
 
     /**
-     * @dev Sets the values for {owner} and {nctoRegistry}.
+     * @dev Sets the values for {owner}, {regenBridge} and {nctoRegistry}.
      */
-    constructor(address owner, IToucanContractRegistry nctoRegistry_) Ownable(owner) {
+    constructor(
+        address owner,
+        address regenBridge_,
+        IToucanContractRegistry nctoRegistry_
+    ) Ownable(owner) {
+        regenBridge = regenBridge_;
         nctoRegistry = nctoRegistry_;
     }
 
@@ -86,7 +94,7 @@ contract ToucanBridge is Ownable, Pausable {
         string calldata note
     ) public {
         require(isRegenAddress(bytes(sender)), "recipient must a Regen Ledger account address");
-        // TODO: require(msg.sender == bridge, "only bridge can issue tokens");
+        require(msg.sender == regenBridge, "only bridge can issue tokens");
 
         emit Issue(sender, recipient, address(tco2), amount);
         // TODO: finish the implementation
