@@ -15,7 +15,7 @@ import "./toucan-contracts/contracts/ToucanCarbonOffsets.sol";
  * See README file for more information about the functionality
  */
 contract ToucanBridge is Ownable, Pausable {
-    IToucanContractRegistry public nctoRegistry;
+    IToucanContractRegistry public nctRegistry;
 
     /** @dev total amount of tokens burned and signalled for transfer */
     uint256 public totalTransferred;
@@ -33,15 +33,15 @@ contract ToucanBridge is Ownable, Pausable {
     event Issue(string sender, address recipient, address tco2, uint256 amount);
 
     /**
-     * @dev Sets the values for {owner}, {regenBridge} and {nctoRegistry}.
+     * @dev Sets the values for {owner}, {regenBridge} and {nctRegistry}.
      */
     constructor(
         address owner,
         address regenBridge_,
-        IToucanContractRegistry nctoRegistry_
+        IToucanContractRegistry nctRegistry_
     ) Ownable(owner) {
         regenBridge = regenBridge_;
-        nctoRegistry = nctoRegistry_;
+        nctRegistry = nctRegistry_;
     }
 
     function pause() external onlyOwner {
@@ -73,7 +73,7 @@ contract ToucanBridge is Ownable, Pausable {
         emit Bridge(msg.sender, recipient, address(tco2), amount);
 
         require(
-            nctoRegistry.checkERC20(address(tco2)),
+            nctRegistry.checkERC20(address(tco2)),
             "contract not part of the Toucan NCT registry"
         );
         tco2.retireFrom(msg.sender, amount);
