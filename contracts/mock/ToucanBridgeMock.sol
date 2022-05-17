@@ -19,7 +19,10 @@ contract ToucanBridgeMock is Ownable, Pausable {
     //      Events
     // ----------------------------------------
 
+    // event emited when we bridge tokens from TCO2 to Regen Ledger
     event Bridge(address sender, string recipient, address tco2, uint256 amount);
+    // event emited when we bridge tokens back from Regen Ledger and issue on TCO2 contract
+    event Issue(string sender, address recipient, address tco2, uint256 amount);
 
     /**
      * @dev Sets the values for {owner} and {nctoRegistry}.
@@ -53,6 +56,25 @@ contract ToucanBridgeMock is Ownable, Pausable {
 
         totalTransferred += amount;
         emit Bridge(msg.sender, recipient, address(tco2), amount);
+    }
+
+    /**
+     * @dev issues TCO2 tokens back from Regen Network.
+     * This functions must be called by a bridge account.
+     */
+    function issueTCO2Tokens(
+        string memory sender,
+        address recipient,
+        address tco2,
+        uint256 amount,
+        string calldata note
+    ) public {
+        require(isRegenAddress(bytes(sender)), "recipient must a Regen Ledger account address");
+
+        emit Issue(sender, recipient, tco2, amount);
+        // TODO: finish the implementation
+        // + mint tco2 tokens
+        // + define and implement checks
     }
 
     function isRegenAddress(bytes memory recipient) internal pure returns (bool) {

@@ -24,7 +24,10 @@ contract ToucanBridge is Ownable, Pausable {
     //      Events
     // ----------------------------------------
 
+    // event emited when we bridge tokens from TCO2 to Regen Ledger
     event Bridge(address sender, string recipient, address tco2, uint256 amount);
+    // event emited when we bridge tokens back from Regen Ledger and issue on TCO2 contract
+    event Issue(string sender, address recipient, address tco2, uint256 amount);
 
     /**
      * @dev Sets the values for {owner} and {nctoRegistry}.
@@ -42,7 +45,8 @@ contract ToucanBridge is Ownable, Pausable {
     }
 
     /**
-     * @dev burns Toucan TCO2 compatible tokens (whitelisted in ncto) and signals a
+     * @dev bridge tokens to Regen Network.
+     * Burns Toucan TCO2 compatible tokens (whitelisted in ncto) and signals a
      * bridge event.
      */
     function bridge(
@@ -68,6 +72,26 @@ contract ToucanBridge is Ownable, Pausable {
 
         // TODO
         // + burn (needs that functionality from the Toucan side)
+    }
+
+    /**
+     * @dev issues TCO2 tokens back from Regen Network.
+     * This functions must be called by a bridge account.
+     */
+    function issueTCO2Tokens(
+        string memory sender,
+        address recipient,
+        ToucanCarbonOffsets tco2,
+        uint256 amount,
+        string calldata note
+    ) public {
+        require(isRegenAddress(bytes(sender)), "recipient must a Regen Ledger account address");
+        // TODO: require(msg.sender == bridge, "only bridge can issue tokens");
+
+        emit Issue(sender, recipient, address(tco2), amount);
+        // TODO: finish the implementation
+        // + mint tco2 tokens
+        // + define and implement checks
     }
 
     function isRegenAddress(bytes memory recipient) internal pure returns (bool) {
