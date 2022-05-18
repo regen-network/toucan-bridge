@@ -23,3 +23,6 @@ deploy()
 	});
 
 // yarn hardhat run scripts/toucan-bridge-mock.js  --network mumbai
+//
+// robert deployd on mumbai: 0x0E65079a29d7793ab5CA500c2d88e60EE99Ba606
+// robert deployd on goerli: 0x0E65079a29d7793ab5CA500c2d88e60EE99Ba606
