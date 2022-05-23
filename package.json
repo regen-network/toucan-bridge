@@ -29,6 +29,7 @@
 		"build": "hardhat compile",
 		"lint:sol": "solhint contracts/*.sol",
 		"format": "prettier --loglevel warn --write .",
+		"format:check": "prettier --loglevel warn --check .",
 		"test": "hardhat test"
 	},
 	"lint-staged": {
