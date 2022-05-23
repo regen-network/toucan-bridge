@@ -32,6 +32,8 @@
 		"test": "hardhat test"
 	},
 	"lint-staged": {
-		"**/{contracts,test,scripts}/**/*.{ts,js,sol}": ["prettier --write"]
+		"**/{contracts,test,scripts}/**/*.{ts,js,sol}": [
+			"prettier --write"
+		]
 	}
 }
