@@ -98,3 +98,6 @@ docs/_layouts/default.html
 .yarn
 @types
 docs/_css/bootstrap.css
+artifacts/
+cache/
+contracts/toucan-contracts/
