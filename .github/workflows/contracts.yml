@@ -53,7 +53,7 @@ jobs:
           yarn
 
       - name: Build smart contract
-        run: yarn compile
+        run: yarn build
 
       - name: Test smart contract
         run: yarn test
