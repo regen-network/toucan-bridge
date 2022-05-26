@@ -3,25 +3,16 @@
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/security/Pausable.sol";
-// import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
-import "./Ownable.sol";
-import "./toucan-contracts/contracts/interfaces/IToucanContractRegistry.sol";
-import "./toucan-contracts/contracts/ToucanCarbonOffsets.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
- * @dev Implementation of the smart contract for Regen Ledger self custody bridge.
+ * @dev Implementation of the smart contract for testing the Regen Ledger self custody bridge.
  *
  * See README file for more information about the functionality
  */
-contract ToucanBridge is Ownable, Pausable {
-    IToucanContractRegistry public nctRegistry;
-
+contract ToucanRegenBridgeMock is Ownable, Pausable {
     /** @dev total amount of tokens burned and signalled for transfer */
     uint256 public totalTransferred;
-
-    // @dev address of the brideg wallet authorized to issue TCO2 tokens.
-    address public regenBridge;
 
     // ----------------------------------------
     //      Events
@@ -33,16 +24,9 @@ contract ToucanBridge is Ownable, Pausable {
     event Issue(string sender, address recipient, address tco2, uint256 amount);
 
     /**
-     * @dev Sets the values for {owner}, {regenBridge} and {nctRegistry}.
+     * @dev Sets the values for {owner} and {nctoRegistry}.
      */
-    constructor(
-        address owner,
-        address regenBridge_,
-        IToucanContractRegistry nctRegistry_
-    ) Ownable(owner) {
-        regenBridge = regenBridge_;
-        nctRegistry = nctRegistry_;
-    }
+    constructor() Ownable() {}
 
     function pause() external onlyOwner {
         _pause();
@@ -53,13 +37,12 @@ contract ToucanBridge is Ownable, Pausable {
     }
 
     /**
-     * @dev bridge tokens to Regen Network.
-     * Burns Toucan TCO2 compatible tokens (whitelisted in ncto) and signals a
-     * bridge event.
+     * @dev a mock method to test the bridge service.
+     * It will accept a transfer only if tco2 token address is odd (las bit is 1)
      */
     function bridge(
         string calldata recipient,
-        ToucanCarbonOffsets tco2,
+        address tco2,
         uint256 amount,
         string calldata note
     ) external whenNotPaused {
@@ -68,18 +51,10 @@ contract ToucanBridge is Ownable, Pausable {
             isRegenAddress(bytes(recipient)),
             "recipient must a Regen Ledger account address"
         );
+        require(uint160(tco2) & 1 == 1, "contract not part of the Toucan NCT registry");
+
         totalTransferred += amount;
-
         emit Bridge(msg.sender, recipient, address(tco2), amount);
-
-        require(
-            nctRegistry.checkERC20(address(tco2)),
-            "contract not part of the Toucan NCT registry"
-        );
-        tco2.retireFrom(msg.sender, amount);
-
-        // TODO
-        // + burn (needs that functionality from the Toucan side)
     }
 
     /**
@@ -89,14 +64,13 @@ contract ToucanBridge is Ownable, Pausable {
     function issueTCO2Tokens(
         string memory sender,
         address recipient,
-        ToucanCarbonOffsets tco2,
+        address tco2,
         uint256 amount,
         string calldata note
     ) public {
         require(isRegenAddress(bytes(sender)), "recipient must a Regen Ledger account address");
-        require(msg.sender == regenBridge, "only bridge can issue tokens");
 
-        emit Issue(sender, recipient, address(tco2), amount);
+        emit Issue(sender, recipient, tco2, amount);
         // TODO: finish the implementation
         // + mint tco2 tokens
         // + define and implement checks

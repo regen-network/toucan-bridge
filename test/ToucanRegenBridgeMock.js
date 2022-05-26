@@ -16,10 +16,10 @@ describe("Token contract", function () {
 
 	beforeEach(async function () {
 		// Get the ContractFactory and Signers here.
-		let Bridge = await ethers.getContractFactory("ToucanBridgeMock");
+		let Bridge = await ethers.getContractFactory("ToucanRegenBridgeMock");
 		[owner, addr1, addr2, tco2] = await ethers.getSigners();
 
-		bridge = await Bridge.deploy(owner.address);
+		bridge = await Bridge.deploy();
 		await bridge.deployed();
 	});
 
