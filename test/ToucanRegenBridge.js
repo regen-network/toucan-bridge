@@ -17,10 +17,10 @@ describe("Token contract", function () {
 
 	beforeEach(async function () {
 		// Get the ContractFactory and Signers here.
-		let Bridge = await ethers.getContractFactory("ToucanBridge");
+		let Bridge = await ethers.getContractFactory("ToucanRegenBridge");
 		[owner, regenBridge, addr1, addr2] = await ethers.getSigners();
 
-		bridge = await Bridge.deploy(owner.address, regenBridge.address, nctFake);
+		bridge = await Bridge.deploy(regenBridge.address, nctFake);
 		await bridge.deployed();
 	});
 
@@ -29,14 +29,14 @@ describe("Token contract", function () {
 		expect(await bridge.totalTransferred()).to.equal(0);
 	});
 
-	it("should pasue and unpause", async function () {
+	it("should pause and unpause", async function () {
 		await bridge.connect(owner).pause();
 		expect(await bridge.paused()).equal(true);
 
 		await bridge.connect(owner).unpause();
 		expect(await bridge.paused()).equal(false);
 
-		await expect(bridge.connect(addr1).pause()).to.be.revertedWith("not an owner");
+		await expect(bridge.connect(addr1).pause()).to.be.revertedWith("Ownable: caller is not the owner");
 		expect(await bridge.paused()).equal(false);
 	});
 

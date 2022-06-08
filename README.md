@@ -35,16 +35,16 @@ yarn
 
 - get some Polygon Mumbai testnet tokens from [faucet](https://faucet.polygon.technology/).
 
-### Hardhat usage
+### Build
 
 ```shell
-yarn hardhat accounts
-yarn hardhat compile
-yarn hardhat clean
-yarn hardhat test
-yarn hardhat node
-node scripts/sample-script.js
-yarn hardhat help
+yarn build
+```
+
+### Deploy bridge
+
+```shell
+yarn hardhat run scripts/toucan-bridge.js
 ```
 
 ## License
