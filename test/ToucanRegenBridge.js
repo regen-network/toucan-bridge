@@ -2,13 +2,15 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-// import { solidity } from "ethereum-waffle";
-// chai.use(solidity);
+const { deployBridge } = require("../lib/bridge");
+const { prepareToucanEnv } = require("../lib/toucan");
+
 
 describe("Token contract", function () {
 	let bridge;
+	let toucanRegistry;
 	let owner;
-	let regenBridge;
+	let admin;
 	let addr1;
 	let addr2;
 	let nctFake = "0x1a6583dE167Cee533B5dbAe194D2e5858aaE7C01";
@@ -16,12 +18,15 @@ describe("Token contract", function () {
 	let recipient = "regen1xrjg7dpdlfds8vhyj22hg5zhg9g7dwmlaxqsys";
 
 	beforeEach(async function () {
-		// Get the ContractFactory and Signers here.
-		let Bridge = await ethers.getContractFactory("ToucanRegenBridge");
-		[owner, regenBridge, addr1, addr2] = await ethers.getSigners();
+		[owner, admin, addr1, addr2] = await ethers.getSigners();
 
-		bridge = await Bridge.deploy(regenBridge.address, nctFake);
-		await bridge.deployed();
+		// Deploy Toucan infra
+		toucanRegistry = await prepareToucanEnv();
+
+		// Deploy ToucanRegenBridge
+		bridge = await deployBridge(admin.address, nctFake);
+        
+		// TODO: await ToucanCarbonOffsetsFactory.setRegenBridgeAddress(bridge.address);
 	});
 
 	it("Should set the right owner and initial parameters", async function () {
@@ -42,17 +47,17 @@ describe("Token contract", function () {
 
 	describe("Bridge", function () {
 		it("should fail with non positive amount", async function () {
-			await expect(bridge.connect(addr1).bridge(recipient, tco2Fake, 0, "note")).to.be.revertedWith(
+			await expect(bridge.connect(addr1).bridge(recipient, tco2Fake, 0)).to.be.revertedWith(
 				"amount must be positive"
 			);
 		});
 
 		it("should fail with non regen recipient address", async function () {
 			await expect(
-				bridge.connect(addr1).bridge("cosmos1xrjg7dpdlfds8vhyj22hg5zhg9g7dwmlaxqsys", tco2Fake, 10, "note")
+				bridge.connect(addr1).bridge("cosmos1xrjg7dpdlfds8vhyj22hg5zhg9g7dwmlaxqsys", tco2Fake, 10)
 			).to.be.revertedWith("regen address must start with 'regen1'");
 
-			await expect(bridge.connect(addr1).bridge("regen1xrj", tco2Fake, 10, "note")).to.be.revertedWith(
+			await expect(bridge.connect(addr1).bridge("regen1xrj", tco2Fake, 10)).to.be.revertedWith(
 				"regen address is at least 44 characters long"
 			);
 		});
@@ -60,7 +65,7 @@ describe("Token contract", function () {
 		it("should fail when contract is paused", async function () {
 			await bridge.connect(owner).pause();
 
-			await expect(bridge.connect(addr1).bridge(recipient, tco2Fake, 10, "note")).to.be.revertedWith(
+			await expect(bridge.connect(addr1).bridge(recipient, tco2Fake, 10)).to.be.revertedWith(
 				"Pausable: paused"
 			);
 		});
@@ -70,11 +75,8 @@ describe("Token contract", function () {
 		const regenSender = recipient;
 
 		it("only regen bridge can issue tokens", async function () {
-			let tx = bridge.connect(regenBridge).issueTCO2Tokens(regenSender, addr1.address, tco2Fake, 100, "note");
-			await expect(tx).to.emit(bridge, "Issue");
-
-			tx = bridge.connect(addr2).issueTCO2Tokens(regenSender, addr1.address, tco2Fake, 100, "note");
-			await expect(tx).to.be.revertedWith("only bridge can issue tokens");
+			let tx = bridge.connect(regenBridge).issueTCO2Tokens(regenSender, addr1.address, tco2Fake, 100);
+			await expect(tx).to.be.revertedWith("Not implemented yet");			
 		});
 	});
 });
