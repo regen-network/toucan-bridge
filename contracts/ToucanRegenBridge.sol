@@ -16,10 +16,10 @@ import "./interfaces/IToucanCarbonOffsets.sol";
 contract ToucanRegenBridge is Ownable, Pausable {
     IToucanContractRegistry public toucanContractRegistry;
 
-    /** @dev total amount of tokens burned and signalled for transfer */
+    // @dev total amount of tokens burned and signalled for transfer
     uint256 public totalTransferred;
 
-    // @dev address of the brideg wallet authorized to issue TCO2 tokens.
+    // @dev address of the bridge wallet authorized to issue TCO2 tokens.
     address public regenBridge;
 
     // ----------------------------------------
@@ -51,29 +51,27 @@ contract ToucanRegenBridge is Ownable, Pausable {
 
     /**
      * @dev bridge tokens to Regen Network.
-     * Burns Toucan TCO2 compatible tokens (whitelisted in ncto) and signals a
-     * bridge event.
+     * Burns Toucan TCO2 compatible tokens and signals a bridge event.
+     * @param recipient Regen address to receive the TCO2
+     * @param tco2 TCO2 address to burn
+     * @param amount TCO2 amount to burn
      */
     function bridge(
         string calldata recipient,
-        IToucanCarbonOffsets tco2,
-        uint256 amount,
-        string calldata note
+        address tco2,
+        uint256 amount
     ) external whenNotPaused {
         require(amount > 0, "amount must be positive");
         require(
             isRegenAddress(bytes(recipient)),
             "recipient must a Regen Ledger account address"
         );
-        require(toucanContractRegistry.checkERC20(address(tco2)), "not a Toucan contract");
+        require(toucanContractRegistry.checkERC20(tco2), "not a Toucan contract");
 
         totalTransferred += amount;
 
-        emit Bridge(msg.sender, recipient, address(tco2), amount);
-        tco2.retireFrom(msg.sender, amount);
-
-        // TODO
-        // + burn (needs that functionality from the Toucan side)
+        emit Bridge(msg.sender, recipient, tco2, amount);
+        IToucanCarbonOffsets(tco2).bridgeBurn(msg.sender, amount);
     }
 
     /**
@@ -84,9 +82,9 @@ contract ToucanRegenBridge is Ownable, Pausable {
         string memory sender,
         address recipient,
         IToucanCarbonOffsets tco2,
-        uint256 amount,
-        string calldata note
+        uint256 amount
     ) public {
+        require(false, "Not implemented yet");
         require(isRegenAddress(bytes(sender)), "recipient must a Regen Ledger account address");
         require(msg.sender == regenBridge, "only bridge can issue tokens");
 

@@ -3,5 +3,5 @@
 pragma solidity ^0.8.4;
 
 interface IToucanCarbonOffsets {
-    function retireFrom(address sender, uint256 amount) external returns (uint256);
+    function bridgeBurn(address account, uint256 amount) external;
 }
