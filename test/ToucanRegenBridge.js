@@ -5,7 +5,6 @@ const { ethers } = require("hardhat");
 const { deployBridge } = require("../lib/bridge");
 const { prepareToucanEnv } = require("../lib/toucan");
 
-
 describe("Token contract", function () {
 	let bridge;
 	let toucanRegistry;
@@ -25,7 +24,7 @@ describe("Token contract", function () {
 
 		// Deploy ToucanRegenBridge
 		bridge = await deployBridge(admin.address, nctFake);
-        
+
 		// TODO: await ToucanCarbonOffsetsFactory.setRegenBridgeAddress(bridge.address);
 	});
 
@@ -75,8 +74,8 @@ describe("Token contract", function () {
 		const regenSender = recipient;
 
 		it("only regen bridge can issue tokens", async function () {
-			let tx = bridge.connect(regenBridge).issueTCO2Tokens(regenSender, addr1.address, tco2Fake, 100);
-			await expect(tx).to.be.revertedWith("Not implemented yet");			
+			let tx = bridge.connect(admin).issueTCO2Tokens(regenSender, addr1.address, tco2Fake, 100);
+			await expect(tx).to.be.revertedWith("Not implemented yet");
 		});
 	});
 });
