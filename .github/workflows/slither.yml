@@ -1,4 +1,4 @@
-name: Smart contract
+name: Slither Analysis
 
 on:
   push:
@@ -7,16 +7,12 @@ on:
     branches: [master]
 
 jobs:
-  contracts:
+  analyze:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [16.x]
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v2
@@ -52,8 +48,12 @@ jobs:
           git submodule update --init --recursive
           yarn install --immutable
 
-      - name: Build smart contract
+      - name: Compile contracts
         run: yarn build
 
-      - name: Test smart contract
-        run: yarn test
+      - name: Run Slither
+        uses: crytic/slither-action@v0.1.1
+        with:
+          ignore-compile: true
+          node-version: 16
+          slither-config: ./slither.config.json
