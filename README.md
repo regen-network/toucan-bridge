@@ -44,7 +44,7 @@ yarn build
 ### Deploy bridge
 
 ```shell
-yarn hardhat run scripts/toucan-bridge.js
+yarn hardhat run scripts/toucan-bridge.js --network <network>
 ```
 
 ## License
