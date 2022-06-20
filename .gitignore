@@ -17,3 +17,7 @@ typechain
 cache
 artifacts
 .log
+
+# OpenZeppelin files since the OZ plugin
+# is only used in tests
+.openzeppelin
