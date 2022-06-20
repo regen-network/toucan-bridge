@@ -19,6 +19,10 @@ contract ToucanRegenBridge is Ownable, Pausable {
     // @dev total amount of tokens burned and signalled for transfer
     uint256 public totalTransferred;
 
+    // @dev mapping TCO2s to burnt tokens; acts as a limiting
+    // mechanism during the minting process
+    mapping(address => uint256) tco2Limits;
+
     // @dev address of the bridge wallet authorized to issue TCO2 tokens.
     address public regenBridge;
 
@@ -31,6 +35,23 @@ contract ToucanRegenBridge is Ownable, Pausable {
     // event emited when we bridge tokens back from Regen Ledger and issue on TCO2 contract
     event Issue(string sender, address recipient, address tco2, uint256 amount);
 
+    // ----------------------------------------
+    //      Modifiers
+    // ----------------------------------------
+
+    modifier isRegenAddress(bytes calldata account) {
+        // verification: checking if account starts with "regen1"
+        require(account.length >= 44, "regen address is at least 44 characters long");
+        bytes memory prefix = "regen1";
+        for (uint8 i = 0; i < 6; ++i)
+            require(prefix[i] == account[i], "regen address must start with 'regen1'");
+        _;
+    }
+
+    // ----------------------------------------
+    //      Constructor
+    // ----------------------------------------
+
     /**
      * @dev Sets the values for {regenBridge} and {toucanContractRegistry}.
      */
@@ -40,6 +61,10 @@ contract ToucanRegenBridge is Ownable, Pausable {
         regenBridge = regenBridge_;
         toucanContractRegistry = toucanContractRegistry_;
     }
+
+    // ----------------------------------------
+    //      Functions
+    // ----------------------------------------
 
     function pause() external onlyOwner {
         _pause();
@@ -60,15 +85,12 @@ contract ToucanRegenBridge is Ownable, Pausable {
         string calldata recipient,
         address tco2,
         uint256 amount
-    ) external whenNotPaused {
+    ) external whenNotPaused isRegenAddress(bytes(recipient)) {
         require(amount > 0, "amount must be positive");
-        require(
-            isRegenAddress(bytes(recipient)),
-            "recipient must a Regen Ledger account address"
-        );
         require(toucanContractRegistry.checkERC20(tco2), "not a Toucan contract");
 
         totalTransferred += amount;
+        tco2Limits[tco2] += amount;
 
         emit Bridge(msg.sender, recipient, tco2, amount);
         IToucanCarbonOffsets(tco2).bridgeBurn(msg.sender, amount);
@@ -79,27 +101,20 @@ contract ToucanRegenBridge is Ownable, Pausable {
      * This functions must be called by a bridge account.
      */
     function issueTCO2Tokens(
-        string memory sender,
+        string calldata sender,
         address recipient,
-        IToucanCarbonOffsets tco2,
+        address tco2,
         uint256 amount
-    ) public {
-        require(false, "Not implemented yet");
-        require(isRegenAddress(bytes(sender)), "recipient must a Regen Ledger account address");
+    ) external whenNotPaused isRegenAddress(bytes(sender)) {
+        require(amount > 0, "amount must be positive");
         require(msg.sender == regenBridge, "only bridge can issue tokens");
 
-        emit Issue(sender, recipient, address(tco2), amount);
-        // TODO: finish the implementation
-        // + mint tco2 tokens
-        // + define and implement checks
-    }
+        // Limit how many tokens can be minted per TCO2; this is going to underflow
+        // in case we try to mint more for a TCO2 than what has been burnt so it will
+        // result in reverting the transaction.
+        tco2Limits[tco2] -= amount;
 
-    function isRegenAddress(bytes memory recipient) internal pure returns (bool) {
-        // verification: checking if recipient starts with "regen1"
-        require(recipient.length >= 44, "regen address is at least 44 characters long");
-        bytes memory prefix = "regen1";
-        for (uint8 i = 0; i < 6; ++i)
-            require(prefix[i] == recipient[i], "regen address must start with 'regen1'");
-        return true;
+        emit Issue(sender, recipient, tco2, amount);
+        IToucanCarbonOffsets(tco2).bridgeMint(msg.sender, amount);
     }
 }
