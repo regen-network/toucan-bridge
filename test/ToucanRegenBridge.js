@@ -5,7 +5,7 @@ const { ethers } = require("hardhat");
 const { deployBridge } = require("../lib/bridge");
 const { prepareToucanEnv } = require("../lib/toucan");
 
-describe("Token contract", function () {
+describe("Bridge contract", function () {
 	let bridge;
 	let registry;
 	let tco2;
@@ -13,7 +13,7 @@ describe("Token contract", function () {
 	let admin;
 	let bridgeAdmin;
 	let broker;
-	let recipient = "regen1xrjg7dpdlfds8vhyj22hg5zhg9g7dwmlaxqsys";
+	const regenUser = "regen1xrjg7dpdlfds8vhyj22hg5zhg9g7dwmlaxqsys";
 
 	before(async function () {
 		[admin, bridgeAdmin, broker] = await ethers.getSigners();
@@ -47,9 +47,9 @@ describe("Token contract", function () {
 		expect(await bridge.paused()).equal(false);
 	});
 
-	describe("Bridge", function () {
+	describe("Polygon to Regen", function () {
 		it("should fail with non positive amount", async function () {
-			await expect(bridge.connect(broker).bridge(recipient, tco2.address, 0)).to.be.revertedWith(
+			await expect(bridge.connect(broker).bridge(regenUser, tco2.address, 0)).to.be.revertedWith(
 				"amount must be positive"
 			);
 		});
@@ -67,26 +67,29 @@ describe("Token contract", function () {
 		it("should fail when contract is paused", async function () {
 			await bridge.connect(admin).pause();
 
-			await expect(bridge.connect(broker).bridge(recipient, tco2.address, 10)).to.be.revertedWith(
+			await expect(bridge.connect(broker).bridge(regenUser, tco2.address, 10)).to.be.revertedWith(
 				"Pausable: paused"
 			);
 		});
 
 		it("should fail with non-TCO2 contract", async function () {
-			await expect(bridge.connect(broker).bridge(recipient, tco2Factory.address, 10)).to.be.revertedWith(
+			await expect(bridge.connect(broker).bridge(regenUser, tco2Factory.address, 10)).to.be.revertedWith(
 				"not a TCO2"
 			);
 		});
 	});
 
-	describe("Issue TCO2 tokens", function () {
-		const regenSender = recipient;
-
+	describe("Regen to Polygon", function () {
 		it("should not mint before burning occurs", async function () {
-			let tx = bridge.connect(bridgeAdmin).issueTCO2Tokens(regenSender, broker.address, tco2.address, 100);
+			const tx = bridge.connect(bridgeAdmin).issueTCO2Tokens(regenUser, broker.address, tco2.address, 100);
 			await expect(tx).to.be.revertedWith(
 				"reverted with panic code 0x11 (Arithmetic operation underflowed or overflowed outside of an unchecked block)"
 			);
+		});
+
+		it("should fail with non-bridge admin account", async function () {
+			const tx = bridge.connect(broker).issueTCO2Tokens(regenUser, broker.address, tco2.address, 100);
+			await expect(tx).to.be.revertedWith("only bridge can issue tokens");
 		});
 	});
 });
