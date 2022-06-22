@@ -87,7 +87,7 @@ contract ToucanRegenBridge is Ownable, Pausable {
         uint256 amount
     ) external whenNotPaused isRegenAddress(bytes(recipient)) {
         require(amount > 0, "amount must be positive");
-        require(toucanContractRegistry.checkERC20(tco2), "not a Toucan contract");
+        require(toucanContractRegistry.checkERC20(tco2), "not a TCO2");
 
         totalTransferred += amount;
         tco2Limits[tco2] += amount;

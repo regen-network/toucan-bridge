@@ -71,6 +71,12 @@ describe("Token contract", function () {
 				"Pausable: paused"
 			);
 		});
+
+		it("should fail with non-TCO2 contract", async function () {
+			await expect(bridge.connect(broker).bridge(recipient, tco2Factory.address, 10)).to.be.revertedWith(
+				"not a TCO2"
+			);
+		});
 	});
 
 	describe("Issue TCO2 tokens", function () {
