@@ -73,9 +73,11 @@ describe("Token contract", function () {
 	describe("Issue TCO2 tokens", function () {
 		const regenSender = recipient;
 
-		it("only regen bridge can issue tokens", async function () {
+		it("should not mint before burning occurs", async function () {
 			let tx = bridge.connect(admin).issueTCO2Tokens(regenSender, addr1.address, tco2Fake, 100);
-			await expect(tx).to.be.revertedWith("Not implemented yet");
+			await expect(tx).to.be.revertedWith(
+				"reverted with panic code 0x11 (Arithmetic operation underflowed or overflowed outside of an unchecked block)"
+			);
 		});
 	});
 });
