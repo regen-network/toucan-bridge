@@ -1,6 +1,7 @@
 // We import Chai to use its asserting functions here.
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
+const { BigNumber } = require("ethers");
 
 const { deployBridge } = require("../lib/bridge");
 const { prepareToucanEnv } = require("../lib/toucan");
@@ -79,6 +80,8 @@ describe("Bridge contract", function () {
 
 		it("should burn successfully", async function () {
 			await bridge.connect(broker).bridge(regenUser, tco2.address, 10);
+			expect(await bridge.totalTransferred()).to.equal(10);
+			expect(await bridge.tco2Limits(tco2.address)).to.equal(10);
 		});
 	});
 
@@ -119,6 +122,15 @@ describe("Bridge contract", function () {
 		it("should fail with non-bridge admin account", async function () {
 			const tx = bridge.connect(broker).issueTCO2Tokens(regenUser, broker.address, tco2.address, 100);
 			await expect(tx).to.be.revertedWith("only bridge can issue tokens");
+		});
+
+		it("should mint successfully", async function () {
+			await bridge.connect(broker).bridge(regenUser, tco2.address, 10);
+			expect(await tco2.balanceOf(broker.address)).to.equal(BigNumber.from('1999999999999999999980'));
+			await bridge.connect(bridgeAdmin).issueTCO2Tokens(regenUser, broker.address, tco2.address, 10);
+			expect(await tco2.balanceOf(broker.address)).to.equal(BigNumber.from('1999999999999999999990'));
+			expect(await bridge.totalTransferred()).to.equal(10);
+			expect(await bridge.tco2Limits(tco2.address)).to.equal(0);
 		});
 	});
 });
