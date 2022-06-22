@@ -27,8 +27,7 @@ describe("Bridge contract", function () {
 
 		// Deploy ToucanRegenBridge
 		bridge = await deployBridge(bridgeAdmin.address, registry.address);
-
-		// TODO: await tco2Factory.addToAllowlist(bridge.address);
+		await tco2Factory.addToAllowlist(bridge.address);
 	});
 
 	it("Should set the right owner and initial parameters", async function () {
@@ -76,6 +75,10 @@ describe("Bridge contract", function () {
 			await expect(bridge.connect(broker).bridge(regenUser, tco2Factory.address, 10)).to.be.revertedWith(
 				"not a TCO2"
 			);
+		});
+
+		it("should burn successfully", async function () {
+			await bridge.connect(broker).bridge(regenUser, tco2.address, 10);
 		});
 	});
 
