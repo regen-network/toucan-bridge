@@ -7,64 +7,67 @@ const { prepareToucanEnv } = require("../lib/toucan");
 
 describe("Token contract", function () {
 	let bridge;
-	let toucanRegistry;
-	let owner;
+	let registry;
+	let tco2;
+	let tco2Factory;
 	let admin;
-	let addr1;
-	let addr2;
-	let nctFake = "0x1a6583dE167Cee533B5dbAe194D2e5858aaE7C01";
-	let tco2Fake = "0x1a6583dE167Cee533B5dbAe194D2e5858aaE7C01";
+	let bridgeAdmin;
+	let broker;
 	let recipient = "regen1xrjg7dpdlfds8vhyj22hg5zhg9g7dwmlaxqsys";
 
-	beforeEach(async function () {
-		[owner, admin, addr1, addr2] = await ethers.getSigners();
+	before(async function () {
+		[admin, bridgeAdmin, broker] = await ethers.getSigners();
 
 		// Deploy Toucan infra
-		toucanRegistry = await prepareToucanEnv();
+		[registry, tco2Factory, tco2] = await prepareToucanEnv(admin, broker);
+	});
+
+	beforeEach(async function () {
+		[admin, bridgeAdmin, broker] = await ethers.getSigners();
 
 		// Deploy ToucanRegenBridge
-		bridge = await deployBridge(admin.address, nctFake);
+		bridge = await deployBridge(bridgeAdmin.address, registry.address);
 
-		// TODO: await ToucanCarbonOffsetsFactory.setRegenBridgeAddress(bridge.address);
+		// TODO: await tco2Factory.addToAllowlist(bridge.address);
 	});
 
 	it("Should set the right owner and initial parameters", async function () {
-		expect(await bridge.owner()).to.equal(owner.address);
+		expect(await bridge.owner()).to.equal(admin.address);
 		expect(await bridge.totalTransferred()).to.equal(0);
 	});
 
 	it("should pause and unpause", async function () {
-		await bridge.connect(owner).pause();
+		await bridge.connect(admin).pause();
 		expect(await bridge.paused()).equal(true);
 
-		await bridge.connect(owner).unpause();
+		await bridge.connect(admin).unpause();
 		expect(await bridge.paused()).equal(false);
 
-		await expect(bridge.connect(addr1).pause()).to.be.revertedWith("Ownable: caller is not the owner");
+		await expect(bridge.connect(broker).pause()).to.be.revertedWith("Ownable: caller is not the owner");
 		expect(await bridge.paused()).equal(false);
 	});
 
 	describe("Bridge", function () {
 		it("should fail with non positive amount", async function () {
-			await expect(bridge.connect(addr1).bridge(recipient, tco2Fake, 0)).to.be.revertedWith(
+			await expect(bridge.connect(broker).bridge(recipient, tco2.address, 0)).to.be.revertedWith(
 				"amount must be positive"
 			);
 		});
 
 		it("should fail with non regen recipient address", async function () {
 			await expect(
-				bridge.connect(addr1).bridge("cosmos1xrjg7dpdlfds8vhyj22hg5zhg9g7dwmlaxqsys", tco2Fake, 10)
+				bridge.connect(broker).bridge("cosmos1xrjg7dpdlfds8vhyj22hg5zhg9g7dwmlaxqsys", tco2.address, 10)
 			).to.be.revertedWith("regen address must start with 'regen1'");
 
-			await expect(bridge.connect(addr1).bridge("regen1xrj", tco2Fake, 10)).to.be.revertedWith(
+			await expect(bridge.connect(broker).bridge("regen1xrj", tco2.address, 10)).to.be.revertedWith(
 				"regen address is at least 44 characters long"
 			);
 		});
 
 		it("should fail when contract is paused", async function () {
-			await bridge.connect(owner).pause();
+			await bridge.connect(admin).pause();
 
-			await expect(bridge.connect(addr1).bridge(recipient, tco2Fake, 10)).to.be.revertedWith(
+			await expect(bridge.connect(broker).bridge(recipient, tco2.address, 10)).to.be.revertedWith(
 				"Pausable: paused"
 			);
 		});
@@ -74,7 +77,7 @@ describe("Token contract", function () {
 		const regenSender = recipient;
 
 		it("should not mint before burning occurs", async function () {
-			let tx = bridge.connect(admin).issueTCO2Tokens(regenSender, addr1.address, tco2Fake, 100);
+			let tx = bridge.connect(bridgeAdmin).issueTCO2Tokens(regenSender, broker.address, tco2.address, 100);
 			await expect(tx).to.be.revertedWith(
 				"reverted with panic code 0x11 (Arithmetic operation underflowed or overflowed outside of an unchecked block)"
 			);
