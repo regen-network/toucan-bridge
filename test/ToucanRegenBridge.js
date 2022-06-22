@@ -80,6 +80,32 @@ describe("Bridge contract", function () {
 	});
 
 	describe("Regen to Polygon", function () {
+		it("should fail with non positive amount", async function () {
+			await expect(
+				bridge.connect(broker).issueTCO2Tokens(regenUser, broker.address, tco2.address, 0)
+			).to.be.revertedWith("amount must be positive");
+		});
+
+		it("should fail with non regen sender address", async function () {
+			await expect(
+				bridge
+					.connect(bridgeAdmin)
+					.issueTCO2Tokens("cosmos1xrjg7dpdlfds8vhyj22hg5zhg9g7dwmlaxqsys", broker.address, tco2.address, 10)
+			).to.be.revertedWith("regen address must start with 'regen1'");
+
+			await expect(
+				bridge.connect(bridgeAdmin).issueTCO2Tokens("regen1xrj", broker.address, tco2.address, 10)
+			).to.be.revertedWith("regen address is at least 44 characters long");
+		});
+
+		it("should fail when contract is paused", async function () {
+			await bridge.connect(admin).pause();
+
+			await expect(
+				bridge.connect(bridgeAdmin).issueTCO2Tokens(regenUser, broker.address, tco2.address, 10)
+			).to.be.revertedWith("Pausable: paused");
+		});
+
 		it("should not mint before burning occurs", async function () {
 			const tx = bridge.connect(bridgeAdmin).issueTCO2Tokens(regenUser, broker.address, tco2.address, 100);
 			await expect(tx).to.be.revertedWith(
