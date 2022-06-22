@@ -32,6 +32,7 @@ yarn
 ```
 
 To update the submodule to its latest version
+
 ```
 git submodule update --remote --merge
 ```

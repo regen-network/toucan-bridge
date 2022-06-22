@@ -126,9 +126,9 @@ describe("Bridge contract", function () {
 
 		it("should mint successfully", async function () {
 			await bridge.connect(broker).bridge(regenUser, tco2.address, 10);
-			expect(await tco2.balanceOf(broker.address)).to.equal(BigNumber.from('1999999999999999999980'));
+			expect(await tco2.balanceOf(broker.address)).to.equal(BigNumber.from("1999999999999999999980"));
 			await bridge.connect(bridgeAdmin).issueTCO2Tokens(regenUser, broker.address, tco2.address, 10);
-			expect(await tco2.balanceOf(broker.address)).to.equal(BigNumber.from('1999999999999999999990'));
+			expect(await tco2.balanceOf(broker.address)).to.equal(BigNumber.from("1999999999999999999990"));
 			expect(await bridge.totalTransferred()).to.equal(10);
 			expect(await bridge.tco2Limits(tco2.address)).to.equal(0);
 		});
