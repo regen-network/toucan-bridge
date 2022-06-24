@@ -121,7 +121,7 @@ describe("Bridge contract", function () {
 
 		it("should fail with non-bridge admin account", async function () {
 			const tx = bridge.connect(broker).issueTCO2Tokens(regenUser, broker.address, tco2.address, 100);
-			await expect(tx).to.be.revertedWith("only bridge can issue tokens");
+			await expect(tx).to.be.revertedWith("invalid caller");
 		});
 
 		it("should mint successfully", async function () {
