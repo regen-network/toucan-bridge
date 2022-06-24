@@ -31,6 +31,12 @@ git submodule update --init --recursive
 yarn
 ```
 
+To update the submodule to its latest version
+
+```
+git submodule update --remote --merge
+```
+
 ## Contributing
 
 - get some Polygon Mumbai testnet tokens from [faucet](https://faucet.polygon.technology/).

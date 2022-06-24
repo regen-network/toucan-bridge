@@ -21,7 +21,7 @@ contract ToucanRegenBridge is Ownable, Pausable {
 
     // @dev mapping TCO2s to burnt tokens; acts as a limiting
     // mechanism during the minting process
-    mapping(address => uint256) tco2Limits;
+    mapping(address => uint256) public tco2Limits;
 
     // @dev address of the bridge wallet authorized to issue TCO2 tokens.
     address public regenBridge;
@@ -115,6 +115,6 @@ contract ToucanRegenBridge is Ownable, Pausable {
         tco2Limits[tco2] -= amount;
 
         emit Issue(sender, recipient, tco2, amount);
-        IToucanCarbonOffsets(tco2).bridgeMint(msg.sender, amount);
+        IToucanCarbonOffsets(tco2).bridgeMint(recipient, amount);
     }
 }

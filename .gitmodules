@@ -4,3 +4,4 @@
 [submodule "contracts/toucan-contracts"]
 	path = contracts/toucan-contracts
 	url = https://github.com/ToucanProtocol/contracts.git
+	branch = tco2-bridge-burn
