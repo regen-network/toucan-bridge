@@ -16,23 +16,23 @@ import "./interfaces/IToucanCarbonOffsets.sol";
 contract ToucanRegenBridge is Ownable, Pausable {
     IToucanContractRegistry public toucanContractRegistry;
 
-    // @dev total amount of tokens burned and signalled for transfer
+    /// @notice total amount of tokens burned and signalled for transfer
     uint256 public totalTransferred;
 
-    // @dev mapping TCO2s to burnt tokens; acts as a limiting
-    // mechanism during the minting process
+    /// @notice mapping TCO2s to burnt tokens; acts as a limiting
+    /// mechanism during the minting process
     mapping(address => uint256) public tco2Limits;
 
-    // @dev address of the bridge wallet authorized to issue TCO2 tokens.
-    address public regenBridge;
+    /// @notice address of the bridge wallet authorized to issue TCO2 tokens.
+    address public bridgeController;
 
     // ----------------------------------------
     //      Events
     // ----------------------------------------
 
-    // event emited when we bridge tokens from TCO2 to Regen Ledger
+    /// @notice emited when we bridge tokens from TCO2 to Regen Ledger
     event Bridge(address sender, string recipient, address tco2, uint256 amount);
-    // event emited when we bridge tokens back from Regen Ledger and issue on TCO2 contract
+    /// @notice emited when we bridge tokens back from Regen Ledger and issue on TCO2 contract
     event Issue(string sender, address recipient, address tco2, uint256 amount);
 
     // ----------------------------------------
@@ -53,12 +53,12 @@ contract ToucanRegenBridge is Ownable, Pausable {
     // ----------------------------------------
 
     /**
-     * @dev Sets the values for {regenBridge} and {toucanContractRegistry}.
+     * @dev Sets the values for {bridgeController} and {toucanContractRegistry}.
      */
-    constructor(address regenBridge_, IToucanContractRegistry toucanContractRegistry_)
+    constructor(address bridgeController_, IToucanContractRegistry toucanContractRegistry_)
         Ownable()
     {
-        regenBridge = regenBridge_;
+        bridgeController = bridgeController_;
         toucanContractRegistry = toucanContractRegistry_;
     }
 
@@ -107,7 +107,7 @@ contract ToucanRegenBridge is Ownable, Pausable {
         uint256 amount
     ) external whenNotPaused isRegenAddress(bytes(sender)) {
         require(amount > 0, "amount must be positive");
-        require(msg.sender == regenBridge, "only bridge can issue tokens");
+        require(msg.sender == bridgeController, "invalid caller");
 
         // Limit how many tokens can be minted per TCO2; this is going to underflow
         // in case we try to mint more for a TCO2 than what has been burnt so it will
