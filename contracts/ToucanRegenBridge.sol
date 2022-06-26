@@ -5,8 +5,8 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-import "./interfaces/IToucanContractRegistry.sol";
-import "./interfaces/IToucanCarbonOffsets.sol";
+import "./interfaces/IContractRegistry.sol";
+import "./interfaces/ITCO2.sol";
 
 /**
  * @dev Implementation of the smart contract for Regen Ledger self custody bridge.
@@ -14,7 +14,7 @@ import "./interfaces/IToucanCarbonOffsets.sol";
  * See README file for more information about the functionality
  */
 contract ToucanRegenBridge is Ownable, Pausable {
-    IToucanContractRegistry public toucanContractRegistry;
+    IContractRegistry public toucanContractRegistry;
 
     /// @notice total amount of tokens burned and signalled for transfer
     uint256 public totalTransferred;
@@ -55,7 +55,7 @@ contract ToucanRegenBridge is Ownable, Pausable {
     /**
      * @dev Sets the values for {bridgeController} and {toucanContractRegistry}.
      */
-    constructor(address bridgeController_, IToucanContractRegistry toucanContractRegistry_)
+    constructor(address bridgeController_, IContractRegistry toucanContractRegistry_)
         Ownable()
     {
         bridgeController = bridgeController_;
@@ -93,7 +93,7 @@ contract ToucanRegenBridge is Ownable, Pausable {
         tco2Limits[tco2] += amount;
 
         emit Bridge(msg.sender, recipient, tco2, amount);
-        IToucanCarbonOffsets(tco2).bridgeBurn(msg.sender, amount);
+        ITCO2(tco2).bridgeBurn(msg.sender, amount);
     }
 
     /**
@@ -115,6 +115,6 @@ contract ToucanRegenBridge is Ownable, Pausable {
         tco2Limits[tco2] -= amount;
 
         emit Issue(sender, recipient, tco2, amount);
-        IToucanCarbonOffsets(tco2).bridgeMint(recipient, amount);
+        ITCO2(tco2).bridgeMint(recipient, amount);
     }
 }
