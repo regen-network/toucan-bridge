@@ -11,7 +11,8 @@
 		"solhint": "^3.3.7"
 	},
 	"dependencies": {
-		"@nomiclabs/hardhat-ethers": "^2.0.5",
+		"@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers@0.3.0-beta.13",
+		"hardhat-deploy": "^0.11.4",
 		"@nomiclabs/hardhat-waffle": "^2.0.3",
 		"@openzeppelin/contracts": "^4.6.0",
 		"@openzeppelin/contracts-upgradeable": "^4.6.0",
