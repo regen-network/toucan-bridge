@@ -1,15 +1,17 @@
 const hre = require("hardhat");
 const fs = require("fs");
+const assert = require("assert");
 
 const { deployBridge } = require("../lib/bridge");
 
-const MNEMONIC = process.env["MNEMONIC"];
+const { MNEMONIC, BRIDGE_CONTROLLER_ADDRESS, TOUCAN_CONTRACT_REGISTRY_ADDRESS } = process.env;
+assert(BRIDGE_CONTROLLER_ADDRESS, "`BRIDGE_CONTROLLER_ADDRESS` environment variable not set");
+assert(TOUCAN_CONTRACT_REGISTRY_ADDRESS, "`TOUCAN_CONTRACT_REGISTRY_ADDRESS` environment variable not set");
 
 async function deploy() {
 	const owner = await getOwner();
-	// TODO: set a right regenBridge and toucanRegistry addresses
-	const regenBridge = "0x11241e35B3f79099123aA0C1C4c97b1FcdCd21f6";
-	const toucanRegistry = "0xD838290e877E0188a4A44700463419ED96c16107";
+	const regenBridge = BRIDGE_CONTROLLER_ADDRESS;
+	const toucanRegistry = TOUCAN_CONTRACT_REGISTRY_ADDRESS;
 
 	console.log("\nOwner address", owner.address);
 	console.log("Regen bridge address", regenBridge);
