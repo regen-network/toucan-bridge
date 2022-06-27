@@ -14,10 +14,6 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 
-/**
- * @type import('hardhat/config').HardhatUserConfig
- */
-
 module.exports = {
 	solidity: {
 		version: "0.8.4",
@@ -28,12 +24,6 @@ module.exports = {
 			},
 		},
 	},
-	// paths: {
-	// 	sources: "./contracts/regen",
-	// 	tests: "./test",
-	// 	cache: "./cache",
-	// 	artifacts: "./artifacts",
-	// },
 	networks: {
 		// Hardhat comes built-in with a special network called hardhat. When using this network, an instance of the Hardhat Network will be automatically created when you run a task, script or test your smart contracts.
 		// default networks: hardhat, localhost ("http://127.0.0.1:8545")

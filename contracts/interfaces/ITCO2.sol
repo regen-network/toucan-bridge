@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.4;
 
-interface IToucanCarbonOffsets {
+interface ITCO2 {
     function bridgeBurn(address account, uint256 amount) external;
 
     function bridgeMint(address account, uint256 amount) external;
