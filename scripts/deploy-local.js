@@ -7,7 +7,7 @@ async function deploy() {
 	const [owner] = await hre.ethers.getSigners();
 	const regenBridgeAccount = "0x11241e35B3f79099123aA0C1C4c97b1FcdCd21f6";
 	const [registry, tco2Factory, tco2] = await prepareToucanEnv(owner, owner);
-	const bridge = await deployBridge(tco2Factory, regenBridgeAccount, registry.address);
+	const bridge = await deployBridge(regenBridgeAccount, registry.address);
 	console.log(`Adding bridge contract address ${bridge.address} to allow list...`);
 	await tco2Factory.addToAllowlist(bridge.address);
 	console.log("==== config data ====");
