@@ -3,7 +3,11 @@ node_modules
 coverage
 coverage.json
 typechain
+.nvmrc
+
+# editor specific files
 .idea
+tags
 
 # yarn files
 .yarn/*
