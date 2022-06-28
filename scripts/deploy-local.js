@@ -11,16 +11,22 @@ async function deploy() {
 	console.log(`Adding bridge contract address ${bridge.address} to allow list...`);
 	await tco2Factory.addToAllowlist(bridge.address);
 	console.log("==== config data ====");
-	console.log(JSON.stringify({
-		"ETH_RPC_URL": "http://127.0.0.1:8545/",
-		"CONFIRMED_BLOCK_DEPTH": 0,
-		"CHAIN_ID": 31337,
-		"OWNER": owner.address,
-		"BRIDGE_CONTRACT_ADDRESS": bridge.address,
-		"TCO2_FACTORY_ADDRESS": tco2Factory.address,
-		"TCO2_CONTRACT_ADDRESS": tco2.address,
-		"REGISTRY_ADDRESS": registry.address,
-	}, null, 2));
+	console.log(
+		JSON.stringify(
+			{
+				ETH_RPC_URL: "http://127.0.0.1:8545/",
+				CONFIRMED_BLOCK_DEPTH: 0,
+				CHAIN_ID: 31337,
+				OWNER: owner.address,
+				BRIDGE_CONTRACT_ADDRESS: bridge.address,
+				TCO2_FACTORY_ADDRESS: tco2Factory.address,
+				TCO2_CONTRACT_ADDRESS: tco2.address,
+				REGISTRY_ADDRESS: registry.address,
+			},
+			null,
+			2
+		)
+	);
 }
 
 deploy()
