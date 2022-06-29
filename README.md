@@ -49,6 +49,16 @@ yarn build
 
 ### Deploy bridge
 
+The bridge deploy script expects two environment variables. 1) address of the bridge controller: `BRIDGE_CONTROLLER_ADDRESS` and 2) address of the Toucan contract registry: `TOUCAN_CONTRACT_REGISTRY_ADDRESS`
+
+#### Testnets/Matic
+
+Before you deploy you should set up your signer wallet. You can either pass a mnemonic via the environment variable `MNEMONIC` or create a `mnemonic.txt` file with the seed phrase in the root of the repository.
+
+#### Locally
+
+The mnemonic is not required for local deployments. The script will automatically default to the first signer account from Hardhat.
+
 ```shell
 yarn hardhat run scripts/toucan-bridge.js --network <network>
 ```

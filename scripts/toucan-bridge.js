@@ -1,19 +1,50 @@
 const hre = require("hardhat");
+const fs = require("fs");
+const assert = require("assert");
 
 const { deployBridge } = require("../lib/bridge");
 
-async function deploy() {
-	// TODO: update to use other signers besides Hardhat
-	const [owner] = await hre.ethers.getSigners();
-	// TODO: set a right regenBridge and toucanRegistry addresses
-	const regenBridge = "0x11241e35B3f79099123aA0C1C4c97b1FcdCd21f6";
-	const toucanRegistry = "0xD838290e877E0188a4A44700463419ED96c16107";
+const { MNEMONIC, BRIDGE_CONTROLLER_ADDRESS, TOUCAN_CONTRACT_REGISTRY_ADDRESS } = process.env;
+assert(BRIDGE_CONTROLLER_ADDRESS, "`BRIDGE_CONTROLLER_ADDRESS` environment variable not set");
+assert(TOUCAN_CONTRACT_REGISTRY_ADDRESS, "`TOUCAN_CONTRACT_REGISTRY_ADDRESS` environment variable not set");
 
-	console.log("Owner address", owner.address);
+async function deploy() {
+	const owner = await getOwner();
+	const regenBridge = BRIDGE_CONTROLLER_ADDRESS;
+	const toucanRegistry = TOUCAN_CONTRACT_REGISTRY_ADDRESS;
+
+	console.log("\nOwner address", owner.address);
 	console.log("Regen bridge address", regenBridge);
 	console.log("Toucan contract registry", toucanRegistry);
 
 	await deployBridge(regenBridge, toucanRegistry);
+}
+
+async function getOwner() {
+	const mnemonic = getMnemonic();
+
+	if (mnemonic) {
+		console.log("Using mnemonic as signer");
+		return ethers.Wallet.fromMnemonic(mnemonic);
+	}
+
+	console.log("Defaulting to first account from Hardhat");
+	const [owner] = await hre.ethers.getSigners();
+	return owner;
+}
+
+// Either get the mnemonic from the env var `MNEMONIC` if it is present
+// or a text file called `mnemonic.txt`.
+function getMnemonic() {
+	if (MNEMONIC) return MNEMONIC;
+
+	console.log("`MNEMONIC` environment var not found. Looking for mnemonic.txt");
+	try {
+		return fs.readFileSync("./mnemonic.txt").toString().trim();
+	} catch (e) {
+		console.log("'./mnemonic.txt' file not found.");
+		return undefined;
+	}
 }
 
 deploy()
