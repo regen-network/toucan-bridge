@@ -14,9 +14,6 @@ async function deploy() {
 	console.log(
 		JSON.stringify(
 			{
-				ETH_RPC_URL: "http://127.0.0.1:8545/",
-				CONFIRMED_BLOCK_DEPTH: 0,
-				CHAIN_ID: 31337,
 				OWNER: owner.address,
 				BRIDGE_CONTRACT_ADDRESS: bridge.address,
 				TCO2_FACTORY_ADDRESS: tco2Factory.address,
