@@ -8,9 +8,9 @@ async function deploy() {
 	const regenBridgeAccount = "0x11241e35B3f79099123aA0C1C4c97b1FcdCd21f6";
 	const [registry, tco2Factory, data] = await prepareToucanEnv(owner, owner);
 	let dataAddresses = {};
-	Object.keys(data).forEach(function (key) {
+	for (const key in data) {
 		dataAddresses[key] = data[key].address;
-	});
+	}
 	const bridge = await deployBridge(regenBridgeAccount, registry.address);
 	console.log(`Adding bridge contract address ${bridge.address} to allow list...`);
 	await tco2Factory.addToAllowlist(bridge.address);
