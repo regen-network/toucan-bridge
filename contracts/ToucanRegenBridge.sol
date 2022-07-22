@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 import "./interfaces/IContractRegistry.sol";
 import "./interfaces/ITCO2.sol";
+import "./interfaces/INCTPool.sol";
 
 /**
  * @dev Implementation of the smart contract for Regen Ledger self custody bridge.
@@ -25,6 +26,9 @@ contract ToucanRegenBridge is Ownable, Pausable {
 
     /// @notice address of the bridge wallet authorized to issue TCO2 tokens.
     address public bridgeController;
+
+    /// @notice address of the NCT pool to be able to check TCO2 eligibility
+    INCTPool public immutable nctPool;
 
     // ----------------------------------------
     //      Events
@@ -55,11 +59,14 @@ contract ToucanRegenBridge is Ownable, Pausable {
     /**
      * @dev Sets the values for {bridgeController} and {toucanContractRegistry}.
      */
-    constructor(address bridgeController_, IContractRegistry toucanContractRegistry_)
-        Ownable()
-    {
+    constructor(
+      address bridgeController_, 
+      IContractRegistry toucanContractRegistry_, 
+      INCTPool nctPool_
+    ) Ownable() {
         bridgeController = bridgeController_;
         toucanContractRegistry = toucanContractRegistry_;
+        nctPool = nctPool_;
     }
 
     // ----------------------------------------
@@ -88,6 +95,7 @@ contract ToucanRegenBridge is Ownable, Pausable {
     ) external whenNotPaused isRegenAddress(bytes(recipient)) {
         require(amount > 0, "amount must be positive");
         require(toucanContractRegistry.checkERC20(tco2), "not a TCO2");
+        require(nctPool.checkEligible(tco2), "TCO2 not eligible for NCT pool");
 
         totalTransferred += amount;
         tco2Limits[tco2] += amount;
