@@ -11,6 +11,7 @@ describe("Bridge contract", function () {
 	let registry;
 	let tco2;
 	let tco2Factory;
+	let nctPool;
 	let admin;
 	let bridgeAdmin;
 	let broker;
@@ -23,6 +24,7 @@ describe("Bridge contract", function () {
 		const env = await prepareToucanEnv(admin, broker);
 		registry = env.registry;
 		tco2Factory = env.tco2Factory;
+		nctPool = env.nctPool;
 		// data contains the tco2 contracts indexed by the UniqueId from the genesis json file
 		tco2 = env.data["vintage1"];
 	});
@@ -31,7 +33,7 @@ describe("Bridge contract", function () {
 		[admin, bridgeAdmin, broker] = await ethers.getSigners();
 
 		// Deploy ToucanRegenBridge
-		bridge = await deployBridge(bridgeAdmin.address, registry.address);
+		bridge = await deployBridge(bridgeAdmin.address, registry.address, nctPool.address);
 		await tco2Factory.addToAllowlist(bridge.address);
 	});
 
