@@ -8,6 +8,7 @@
 		"Method": "method1",
 		"EmissionType": "emissionType1",
 		"Category": "category1",
+		"IsNCTEligible": true,
 		"Uri": "uri1",
 		"Vintages": [
 			{
@@ -27,6 +28,40 @@
 						"SerialNumber": "serialNumber1",
 						"Quantity": 2000,
 						"Uri": "uri1"
+					}
+				]
+			}
+		]
+	},
+	{
+		"ProjectId": "projectId2",
+		"Standard": "standard2",
+		"Methodology": "methodology2",
+		"Region": "region2",
+		"StorageMethod": "storageMethod2",
+		"Method": "method2",
+		"EmissionType": "emissionType2",
+		"Category": "category2",
+		"IsNCTEligible": false,
+		"Uri": "uri2",
+		"Vintages": [
+			{
+				"UniqueId": "vintage2",
+				"Name": "vintage2Name",
+				"StartTime": "2007-01-01T00:00:00Z",
+				"EndTime": "2007-12-31T00:00:00Z",
+				"TotalVintageQuantity": 3000,
+				"IsCorsiaCompliant": false,
+				"IsCCPcompliant": true,
+				"CoBenefits": "",
+				"CorrespAdjustment": "",
+				"AdditionalCertification": "",
+				"Uri": "",
+				"Batches": [
+					{
+						"SerialNumber": "serialNumber2",
+						"Quantity": 1000,
+						"Uri": "uri2"
 					}
 				]
 			}
