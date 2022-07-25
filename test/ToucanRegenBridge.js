@@ -9,7 +9,6 @@ const { prepareToucanEnv } = require("../lib/toucan");
 describe("Bridge contract", function () {
 	let bridge;
 	let registry;
-	let data;
 	let tco2;
 	let tco2Factory;
 	let admin;
@@ -21,10 +20,11 @@ describe("Bridge contract", function () {
 		[admin, bridgeAdmin, broker] = await ethers.getSigners();
 
 		// Deploy Toucan infra
-		[registry, tco2Factory, data] = await prepareToucanEnv(admin, broker);
-
+		const env = await prepareToucanEnv(admin, broker);
+		registry = env.registry;
+		tco2Factory = env.tco2Factory;
 		// data contains the tco2 contracts indexed by the UniqueId from the genesis json file
-		tco2 = data["vintage1"];
+		tco2 = env.data["vintage1"];
 	});
 
 	beforeEach(async function () {
