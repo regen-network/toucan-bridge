@@ -15,7 +15,7 @@ import "./interfaces/INCTPool.sol";
  * See README file for more information about the functionality
  */
 contract ToucanRegenBridge is Ownable, Pausable {
-    IContractRegistry public toucanContractRegistry;
+    IContractRegistry public immutable toucanContractRegistry;
 
     /// @notice total amount of tokens burned and signalled for transfer
     uint256 public totalTransferred;
