@@ -25,7 +25,7 @@ contract ToucanRegenBridge is Ownable, Pausable {
     mapping(address => uint256) public tco2Limits;
 
     /// @notice address of the bridge wallet authorized to issue TCO2 tokens.
-    address public bridgeController;
+    address public tokenIssuer;
 
     /// @notice address of the NCT pool to be able to check TCO2 eligibility
     INCTPool public immutable nctPool;
@@ -38,6 +38,8 @@ contract ToucanRegenBridge is Ownable, Pausable {
     event Bridge(address sender, string recipient, address tco2, uint256 amount);
     /// @notice emited when we bridge tokens back from Regen Ledger and issue on TCO2 contract
     event Issue(string sender, address recipient, address tco2, uint256 amount);
+    /// @notice emited when the token issuer is updated
+    event TokenIssuerUpdated(address oldIssuer, address newIssuer);
 
     // ----------------------------------------
     //      Modifiers
@@ -56,17 +58,17 @@ contract ToucanRegenBridge is Ownable, Pausable {
     //      Constructor
     // ----------------------------------------
 
-    /**
-     * @dev Sets the values for {bridgeController} and {toucanContractRegistry}.
-     */
     constructor(
-        address bridgeController_,
+        address tokenIssuer_,
         IContractRegistry toucanContractRegistry_,
         INCTPool nctPool_
     ) Ownable() {
-        bridgeController = bridgeController_;
+        tokenIssuer = tokenIssuer_;
         toucanContractRegistry = toucanContractRegistry_;
         nctPool = nctPool_;
+        if (tokenIssuer_ != address(0)) {
+            emit TokenIssuerUpdated(address(0), tokenIssuer_);
+        }
     }
 
     // ----------------------------------------
@@ -79,6 +81,19 @@ contract ToucanRegenBridge is Ownable, Pausable {
 
     function unpause() external onlyOwner {
         _unpause();
+    }
+
+    /**
+     * @notice Enable the contract owner to rotate the
+     * token issuer.
+     * @param newIssuer Token issuer to be set
+     */
+    function setTokenIssuer(address newIssuer) external onlyOwner {
+        address oldIssuer = tokenIssuer;
+        require(oldIssuer != newIssuer, "already set");
+
+        tokenIssuer = newIssuer;
+        emit TokenIssuerUpdated(oldIssuer, newIssuer);
     }
 
     /**
@@ -115,7 +130,7 @@ contract ToucanRegenBridge is Ownable, Pausable {
         uint256 amount
     ) external whenNotPaused isRegenAddress(bytes(sender)) {
         require(amount > 0, "amount must be positive");
-        require(msg.sender == bridgeController, "invalid caller");
+        require(msg.sender == tokenIssuer, "invalid caller");
 
         // Limit how many tokens can be minted per TCO2; this is going to underflow
         // in case we try to mint more for a TCO2 than what has been burnt so it will
