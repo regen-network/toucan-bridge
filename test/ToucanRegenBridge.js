@@ -9,9 +9,10 @@ const { prepareToucanEnv } = require("../lib/toucan");
 describe("Bridge contract", function () {
 	let bridge;
 	let registry;
-	let data;
 	let tco2;
+	let nonEligibleTco2;
 	let tco2Factory;
+	let nctPool;
 	let admin;
 	let bridgeAdmin;
 	let broker;
@@ -21,17 +22,20 @@ describe("Bridge contract", function () {
 		[admin, bridgeAdmin, broker] = await ethers.getSigners();
 
 		// Deploy Toucan infra
-		[registry, tco2Factory, data] = await prepareToucanEnv(admin, broker);
-
+		const env = await prepareToucanEnv(admin, broker);
+		registry = env.registry;
+		tco2Factory = env.tco2Factory;
+		nctPool = env.nctPool;
 		// data contains the tco2 contracts indexed by the UniqueId from the genesis json file
-		tco2 = data["vintage1"];
+		tco2 = env.data["vintage1"];
+		nonEligibleTco2 = env.data["vintage2"];
 	});
 
 	beforeEach(async function () {
 		[admin, bridgeAdmin, broker] = await ethers.getSigners();
 
 		// Deploy ToucanRegenBridge
-		bridge = await deployBridge(bridgeAdmin.address, registry.address);
+		bridge = await deployBridge(bridgeAdmin.address, registry.address, nctPool.address);
 		await tco2Factory.addToAllowlist(bridge.address);
 	});
 
@@ -80,6 +84,10 @@ describe("Bridge contract", function () {
 			await expect(bridge.connect(broker).bridge(regenUser, tco2Factory.address, 10)).to.be.revertedWith(
 				"not a TCO2"
 			);
+		});
+
+		it("should fail with NCT non-eligible TCO2 contract", async function () {
+			await expect(bridge.connect(broker).bridge(regenUser, nonEligibleTco2.address, 10)).to.be.reverted;
 		});
 
 		it("should burn successfully", async function () {
