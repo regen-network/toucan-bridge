@@ -8,7 +8,7 @@
 		"Method": "method1",
 		"EmissionType": "emissionType1",
 		"Category": "category1",
-		"IsNCTEligible": true,
+		"NotNCTEligible": false,
 		"Uri": "uri1",
 		"Vintages": [
 			{
@@ -42,7 +42,7 @@
 		"Method": "method2",
 		"EmissionType": "emissionType2",
 		"Category": "category2",
-		"IsNCTEligible": false,
+		"NotNCTEligible": true,
 		"Uri": "uri2",
 		"Vintages": [
 			{
