@@ -144,5 +144,27 @@ describe("Bridge contract", function () {
 			expect(await bridge.totalTransferred()).to.equal(10);
 			expect(await bridge.tco2Limits(tco2.address)).to.equal(0);
 		});
+
+		it("should enable issuer rotation", async function () {
+			await bridge.connect(broker).bridge(regenUser, tco2.address, 10);
+
+			// Check that admin cannot mint but bridgeAdmin can
+			let tx = bridge.connect(admin).issueTCO2Tokens(regenUser, broker.address, tco2.address, 5);
+			await expect(tx).to.be.revertedWith("invalid caller");
+			await bridge.connect(bridgeAdmin).issueTCO2Tokens(regenUser, broker.address, tco2.address, 5);
+
+			// Rotate bridgeAdmin to admin
+			await bridge.connect(admin).setTokenIssuer(admin.address);
+
+			// Check that bridgeAdmin cannot mint but admin can
+			tx = bridge.connect(bridgeAdmin).issueTCO2Tokens(regenUser, broker.address, tco2.address, 5);
+			await expect(tx).to.be.revertedWith("invalid caller");
+			await bridge.connect(admin).issueTCO2Tokens(regenUser, broker.address, tco2.address, 5);
+		});
+
+		it("should fail if issuer already set", async function () {
+			const tx = bridge.connect(admin).setTokenIssuer(bridgeAdmin.address);
+			await expect(tx).to.be.revertedWith("already set");
+		});
 	});
 });
