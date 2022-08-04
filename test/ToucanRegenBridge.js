@@ -1,7 +1,6 @@
 // We import Chai to use its asserting functions here.
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { BigNumber } = require("ethers");
 
 const { deployBridge } = require("../lib/bridge");
 const { prepareToucanEnv } = require("../lib/toucan");
