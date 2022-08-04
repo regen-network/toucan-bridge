@@ -100,6 +100,20 @@ describe("Bridge contract", function () {
 			expect(await bridge.totalTransferred()).to.equal(amount);
 			expect(await bridge.tco2Limits(tco2.address)).to.equal(amount);
 		});
+
+		it("should bridge with exactly 6 decimals of precision", async function () {
+			const amount = toWei("1.000001");
+			await bridge.connect(broker).bridge(regenUser, tco2.address, amount);
+			expect(await bridge.totalTransferred()).to.equal(amount);
+			expect(await bridge.tco2Limits(tco2.address)).to.equal(amount);
+		});
+
+		it("should not bridge with more than 6 decimals of precision", async function () {
+			const amount = toWei("1.0000001");
+			await expect(bridge.connect(broker).bridge(regenUser, tco2.address, amount)).to.be.revertedWith(
+				"Only precision up to 6 decimals allowed"
+			);
+		});
 	});
 
 	describe("Regen to Polygon", function () {
