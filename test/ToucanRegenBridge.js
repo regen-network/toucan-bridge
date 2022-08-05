@@ -1,10 +1,13 @@
 // We import Chai to use its asserting functions here.
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { BigNumber } = require("ethers");
 
 const { deployBridge } = require("../lib/bridge");
 const { prepareToucanEnv } = require("../lib/toucan");
+
+function toWei(quantity) {
+	return ethers.utils.parseEther(quantity.toString(10));
+}
 
 describe("Bridge contract", function () {
 	let bridge;
@@ -91,9 +94,24 @@ describe("Bridge contract", function () {
 		});
 
 		it("should burn successfully", async function () {
-			await bridge.connect(broker).bridge(regenUser, tco2.address, 10);
-			expect(await bridge.totalTransferred()).to.equal(10);
-			expect(await bridge.tco2Limits(tco2.address)).to.equal(10);
+			const amount = toWei("1.0");
+			await bridge.connect(broker).bridge(regenUser, tco2.address, amount);
+			expect(await bridge.totalTransferred()).to.equal(amount);
+			expect(await bridge.tco2Limits(tco2.address)).to.equal(amount);
+		});
+
+		it("should bridge with exactly 6 decimals of precision", async function () {
+			const amount = toWei("1.000001");
+			await bridge.connect(broker).bridge(regenUser, tco2.address, amount);
+			expect(await bridge.totalTransferred()).to.equal(amount);
+			expect(await bridge.tco2Limits(tco2.address)).to.equal(amount);
+		});
+
+		it("should not bridge with more than 6 decimals of precision", async function () {
+			const amount = toWei("1.0000001");
+			await expect(bridge.connect(broker).bridge(regenUser, tco2.address, amount)).to.be.revertedWith(
+				"Only precision up to 6 decimals allowed"
+			);
 		});
 	});
 
@@ -137,29 +155,38 @@ describe("Bridge contract", function () {
 		});
 
 		it("should mint successfully", async function () {
-			await bridge.connect(broker).bridge(regenUser, tco2.address, 10);
-			expect(await tco2.balanceOf(broker.address)).to.equal(BigNumber.from("1999999999999999999980"));
-			await bridge.connect(bridgeAdmin).issueTCO2Tokens(regenUser, broker.address, tco2.address, 10);
-			expect(await tco2.balanceOf(broker.address)).to.equal(BigNumber.from("1999999999999999999990"));
-			expect(await bridge.totalTransferred()).to.equal(10);
+			const amountBefore = await tco2.balanceOf(broker.address);
+			const amountToTransfer = toWei("1.0");
+
+			await bridge.connect(broker).bridge(regenUser, tco2.address, amountToTransfer);
+			await bridge
+				.connect(bridgeAdmin)
+				.issueTCO2Tokens(regenUser, broker.address, tco2.address, amountToTransfer);
+
+			const newBalance = await tco2.balanceOf(broker.address);
+			const newTransferred = await bridge.totalTransferred();
+			expect(newBalance).to.equal(amountBefore);
+			expect(newTransferred).to.equal(amountToTransfer);
 			expect(await bridge.tco2Limits(tco2.address)).to.equal(0);
 		});
 
 		it("should enable issuer rotation", async function () {
-			await bridge.connect(broker).bridge(regenUser, tco2.address, 10);
+			const amount = toWei("1.0");
+			const halfAmount = toWei("0.5");
+			await bridge.connect(broker).bridge(regenUser, tco2.address, amount);
 
 			// Check that admin cannot mint but bridgeAdmin can
-			let tx = bridge.connect(admin).issueTCO2Tokens(regenUser, broker.address, tco2.address, 5);
+			let tx = bridge.connect(admin).issueTCO2Tokens(regenUser, broker.address, tco2.address, halfAmount);
 			await expect(tx).to.be.revertedWith("invalid caller");
-			await bridge.connect(bridgeAdmin).issueTCO2Tokens(regenUser, broker.address, tco2.address, 5);
+			await bridge.connect(bridgeAdmin).issueTCO2Tokens(regenUser, broker.address, tco2.address, halfAmount);
 
 			// Rotate bridgeAdmin to admin
 			await bridge.connect(admin).setTokenIssuer(admin.address);
 
 			// Check that bridgeAdmin cannot mint but admin can
-			tx = bridge.connect(bridgeAdmin).issueTCO2Tokens(regenUser, broker.address, tco2.address, 5);
+			tx = bridge.connect(bridgeAdmin).issueTCO2Tokens(regenUser, broker.address, tco2.address, halfAmount);
 			await expect(tx).to.be.revertedWith("invalid caller");
-			await bridge.connect(admin).issueTCO2Tokens(regenUser, broker.address, tco2.address, 5);
+			await bridge.connect(admin).issueTCO2Tokens(regenUser, broker.address, tco2.address, halfAmount);
 		});
 
 		it("should fail if issuer already set", async function () {

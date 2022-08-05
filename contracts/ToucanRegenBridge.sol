@@ -112,6 +112,10 @@ contract ToucanRegenBridge is Ownable, Pausable {
         require(toucanContractRegistry.checkERC20(tco2), "not a TCO2");
         require(nctPool.checkEligible(tco2), "TCO2 not eligible for NCT pool");
 
+        //slither-disable-next-line divide-before-multiply
+        uint256 precisionTest = (amount / 1e12) * 1e12;
+        require(amount == precisionTest, "Only precision up to 6 decimals allowed");
+
         totalTransferred += amount;
         tco2Limits[tco2] += amount;
 
