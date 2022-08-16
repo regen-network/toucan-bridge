@@ -131,10 +131,13 @@ contract ToucanRegenBridge is Ownable, Pausable {
         string calldata sender,
         address recipient,
         address tco2,
-        uint256 amount
+        uint256 amount,
+        string calldata origin
     ) external whenNotPaused isRegenAddress(bytes(sender)) {
         require(amount > 0, "amount must be positive");
         require(msg.sender == tokenIssuer, "invalid caller");
+
+        // TODO ensure origin is unique
 
         // Limit how many tokens can be minted per TCO2; this is going to underflow
         // in case we try to mint more for a TCO2 than what has been burnt so it will
