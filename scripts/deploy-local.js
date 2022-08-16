@@ -17,12 +17,10 @@ async function deploy() {
 	console.log(
 		JSON.stringify(
 			{
-				ADMIN_ACCOUNT: adminAccount.address,
-				BRIDGE_ACCOUNT: bridgeAccount.address,
-				BRIDGE_CONTRACT_ADDRESS: bridge.address,
-				TCO2_FACTORY_ADDRESS: tco2Factory.address,
-				REGISTRY_ADDRESS: registry.address,
-				GENESIS_DATA: dataAddresses,
+				ETH_ADMIN_ACCOUNT: adminAccount.address,
+				ETH_BRIDGE_ACCOUNT: bridgeAccount.address,
+				ETH_CONTRACT_ADDRESS: bridge.address,
+				ETH_GENESIS_DATA: dataAddresses,
 			},
 			null,
 			2
