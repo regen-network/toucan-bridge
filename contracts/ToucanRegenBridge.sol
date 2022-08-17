@@ -30,6 +30,9 @@ contract ToucanRegenBridge is Ownable, Pausable {
     /// @notice address of the NCT pool to be able to check TCO2 eligibility
     INCTPool public immutable nctPool;
 
+    /// @dev map of requests to ensure uniqueness
+    mapping(string => bool) origins;
+
     // ----------------------------------------
     //      Events
     // ----------------------------------------
@@ -124,17 +127,25 @@ contract ToucanRegenBridge is Ownable, Pausable {
     }
 
     /**
-     * @dev issues TCO2 tokens back from Regen Network.
+     * @notice issues TCO2 tokens back from Regen Network.
      * This functions must be called by a bridge account.
+     * @param sender Regen address to send the TCO2
+     * @param recipient Polygon address to receive the TCO2
+     * @param tco2 TCO2 address to mint
+     * @param amount TCO2 amount to mint
+     * @param origin Random string provided to ensure uniqueness for this request
      */
     function issueTCO2Tokens(
         string calldata sender,
         address recipient,
         address tco2,
-        uint256 amount
+        uint256 amount,
+        string calldata origin
     ) external whenNotPaused isRegenAddress(bytes(sender)) {
         require(amount > 0, "amount must be positive");
         require(msg.sender == tokenIssuer, "invalid caller");
+        require(!origins[origin], "duplicate origin");
+        origins[origin] = true;
 
         // Limit how many tokens can be minted per TCO2; this is going to underflow
         // in case we try to mint more for a TCO2 than what has been burnt so it will
