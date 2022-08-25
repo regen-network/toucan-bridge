@@ -15,8 +15,6 @@ import "./interfaces/INCTPool.sol";
  * See README file for more information about the functionality
  */
 contract ToucanRegenBridge is Ownable, Pausable {
-    IContractRegistry public immutable toucanContractRegistry;
-
     /// @notice total amount of tokens burned and signalled for transfer
     uint256 public totalTransferred;
 
@@ -31,7 +29,7 @@ contract ToucanRegenBridge is Ownable, Pausable {
     INCTPool public immutable nctPool;
 
     /// @dev map of requests to ensure uniqueness
-    mapping(string => bool) origins;
+    mapping(string => bool) public origins;
 
     // ----------------------------------------
     //      Events
@@ -61,13 +59,8 @@ contract ToucanRegenBridge is Ownable, Pausable {
     //      Constructor
     // ----------------------------------------
 
-    constructor(
-        address tokenIssuer_,
-        IContractRegistry toucanContractRegistry_,
-        INCTPool nctPool_
-    ) Ownable() {
+    constructor(address tokenIssuer_, INCTPool nctPool_) Ownable() {
         tokenIssuer = tokenIssuer_;
-        toucanContractRegistry = toucanContractRegistry_;
         nctPool = nctPool_;
         if (tokenIssuer_ != address(0)) {
             emit TokenIssuerUpdated(address(0), tokenIssuer_);
@@ -112,7 +105,6 @@ contract ToucanRegenBridge is Ownable, Pausable {
         uint256 amount
     ) external whenNotPaused isRegenAddress(bytes(recipient)) {
         require(amount > 0, "amount must be positive");
-        require(toucanContractRegistry.checkERC20(tco2), "not a TCO2");
         require(nctPool.checkEligible(tco2), "TCO2 not eligible for NCT pool");
 
         //slither-disable-next-line divide-before-multiply

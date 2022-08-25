@@ -4,20 +4,20 @@ const assert = require("assert");
 
 const { deployBridge } = require("../lib/bridge");
 
-const { MNEMONIC, BRIDGE_CONTROLLER_ADDRESS, TOUCAN_CONTRACT_REGISTRY_ADDRESS } = process.env;
+const { MNEMONIC, BRIDGE_CONTROLLER_ADDRESS, NCT_ADDRESS } = process.env;
 assert(BRIDGE_CONTROLLER_ADDRESS, "`BRIDGE_CONTROLLER_ADDRESS` environment variable not set");
-assert(TOUCAN_CONTRACT_REGISTRY_ADDRESS, "`TOUCAN_CONTRACT_REGISTRY_ADDRESS` environment variable not set");
+assert(NCT_ADDRESS, "`NCT_ADDRESS` environment variable not set");
 
 async function deploy() {
 	const owner = await getOwner();
-	const regenBridge = BRIDGE_CONTROLLER_ADDRESS;
-	const toucanRegistry = TOUCAN_CONTRACT_REGISTRY_ADDRESS;
+	const tokenIssuer = BRIDGE_CONTROLLER_ADDRESS;
+	const nct = NCT_ADDRESS;
 
-	console.log("\nOwner address", owner.address);
-	console.log("Regen bridge address", regenBridge);
-	console.log("Toucan contract registry", toucanRegistry);
+	console.log("\nOwner", owner.address);
+	console.log("Token issuer", tokenIssuer);
+	console.log("NCT", nct);
 
-	await deployBridge(regenBridge, toucanRegistry);
+	await deployBridge(tokenIssuer, nct);
 }
 
 async function getOwner() {
