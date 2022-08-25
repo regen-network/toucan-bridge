@@ -11,7 +11,6 @@ function toWei(quantity) {
 
 describe("Bridge contract", function () {
 	let bridge;
-	let registry;
 	let tco2;
 	let nonEligibleTco2;
 	let tco2Factory;
@@ -26,7 +25,6 @@ describe("Bridge contract", function () {
 
 		// Deploy Toucan infra
 		const env = await prepareToucanEnv(admin, broker);
-		registry = env.registry;
 		tco2Factory = env.tco2Factory;
 		nctPool = env.nctPool;
 		// data contains the tco2 contracts indexed by the UniqueId from the genesis json file
@@ -38,7 +36,7 @@ describe("Bridge contract", function () {
 		[admin, bridgeAdmin, broker] = await ethers.getSigners();
 
 		// Deploy ToucanRegenBridge
-		bridge = await deployBridge(bridgeAdmin.address, registry.address, nctPool.address);
+		bridge = await deployBridge(bridgeAdmin.address, nctPool.address);
 		await tco2Factory.addToAllowlist(bridge.address);
 	});
 
@@ -85,12 +83,14 @@ describe("Bridge contract", function () {
 
 		it("should fail with non-TCO2 contract", async function () {
 			await expect(bridge.connect(broker).bridge(regenUser, tco2Factory.address, 10)).to.be.revertedWith(
-				"not a TCO2"
+				"Not whitelisted"
 			);
 		});
 
 		it("should fail with NCT non-eligible TCO2 contract", async function () {
-			await expect(bridge.connect(broker).bridge(regenUser, nonEligibleTco2.address, 10)).to.be.reverted;
+			await expect(bridge.connect(broker).bridge(regenUser, nonEligibleTco2.address, 10)).to.be.revertedWith(
+				"Methodology not accepted"
+			);
 		});
 
 		it("should burn successfully", async function () {
