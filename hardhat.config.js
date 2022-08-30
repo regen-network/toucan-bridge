@@ -35,5 +35,8 @@ module.exports = {
 		//   // url: "https://rinkeby.infura.io/v3/",
 		//   // accounts: [``]
 		// }
+		hardhat: {
+			allowUnlimitedContractSize: true,
+		},
 	},
 };
