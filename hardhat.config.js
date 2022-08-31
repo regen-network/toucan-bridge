@@ -36,6 +36,7 @@ module.exports = {
 		//   // accounts: [``]
 		// }
 		hardhat: {
+			// See: https://github.com/regen-network/toucan-bridge/issues/37
 			allowUnlimitedContractSize: true,
 		},
 	},
