@@ -35,5 +35,9 @@ module.exports = {
 		//   // url: "https://rinkeby.infura.io/v3/",
 		//   // accounts: [``]
 		// }
+		hardhat: {
+			// See: https://github.com/regen-network/toucan-bridge/issues/37
+			allowUnlimitedContractSize: true,
+		},
 	},
 };
