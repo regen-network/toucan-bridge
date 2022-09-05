@@ -1,8 +1,11 @@
 require("@nomiclabs/hardhat-waffle");
 require("@openzeppelin/hardhat-upgrades");
+require("@nomiclabs/hardhat-etherscan");
 require("@nomiclabs/hardhat-ethers");
 require("hardhat-deploy");
 require("dotenv").config();
+
+const POLYGONSCAN_API_KEY = process.env.POLYGONSCAN_API_KEY || "";
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -38,6 +41,18 @@ module.exports = {
 		hardhat: {
 			// See: https://github.com/regen-network/toucan-bridge/issues/37
 			allowUnlimitedContractSize: true,
+		},
+		matic: {
+			url: "https://matic-mainnet.chainstacklabs.com",
+		},
+		mumbai: {
+			url: "https://matic-mumbai.chainstacklabs.com",
+		},
+	},
+	etherscan: {
+		apiKey: {
+			polygon: POLYGONSCAN_API_KEY,
+			polygonMumbai: POLYGONSCAN_API_KEY,
 		},
 	},
 };

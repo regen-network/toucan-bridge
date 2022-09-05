@@ -63,6 +63,14 @@ The mnemonic is not required for local deployments. The script will automaticall
 yarn hardhat run scripts/toucan-bridge.js --network <network>
 ```
 
+### Verify in Polygonscan
+
+Add a Polygonscan API key in your `.env` file, then run:
+
+```
+yarn hardhat verify <contract_address> --contract contracts/ToucanRegenBridge.sol:ToucanRegenBridge <issuer_address> <nct_address> --network <network>
+```
+
 ## License
 
 See the [LICENSE](./LICENSE) file.
