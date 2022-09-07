@@ -38,7 +38,7 @@ contract ToucanRegenBridge is Ownable, Pausable {
     /// @notice emited when we bridge tokens from TCO2 to Regen Ledger
     event Bridge(address sender, string recipient, address tco2, uint256 amount);
     /// @notice emited when we bridge tokens back from Regen Ledger and issue on TCO2 contract
-    event Issue(string sender, address recipient, address tco2, uint256 amount);
+    event Issue(string sender, address recipient, address tco2, uint256 amount, string origin);
     /// @notice emited when the token issuer is updated
     event TokenIssuerUpdated(address oldIssuer, address newIssuer);
 
@@ -144,7 +144,7 @@ contract ToucanRegenBridge is Ownable, Pausable {
         // result in reverting the transaction.
         tco2Limits[tco2] -= amount;
 
-        emit Issue(sender, recipient, tco2, amount);
+        emit Issue(sender, recipient, tco2, amount, origin);
         ITCO2(tco2).bridgeMint(recipient, amount);
     }
 }
