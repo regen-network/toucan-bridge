@@ -25,8 +25,6 @@ async function deploy() {
 	console.log(
 		JSON.stringify(
 			{
-				ETH_ADMIN_ACCOUNT: adminAccount.address,
-				ETH_BRIDGE_ACCOUNT: bridgeAccount.address,
 				ETH_CONTRACT_ADDRESS: bridge.address,
 				ETH_CONTRACTS: contracts,
 			},
