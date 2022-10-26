@@ -57,3 +57,4 @@ jobs:
           ignore-compile: true
           node-version: 16
           slither-config: ./slither.config.json
+          slither-version: v0.8.3
