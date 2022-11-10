@@ -16,7 +16,7 @@ import "./interfaces/INCTPool.sol";
  * See README file for more information about the functionality
  */
 contract ToucanRegenBridge is Ownable, Pausable, AccessControl {
-     // ----------------------------------------
+    // ----------------------------------------
     //      Roles
     // ----------------------------------------
 
@@ -89,7 +89,7 @@ contract ToucanRegenBridge is Ownable, Pausable, AccessControl {
     //      Functions
     // ----------------------------------------
 
-    function pause() external  onlyPauser {
+    function pause() external onlyPauser {
         _pause();
     }
 
