@@ -78,7 +78,7 @@ contract ToucanRegenBridge is Ownable, Pausable, AccessControl {
     constructor(address tokenIssuer_, INCTPool nctPool_) Ownable() {
         tokenIssuer = tokenIssuer_;
         nctPool = nctPool_;
-        _grantRole(PAUSER_ROLE, tokenIssuer); // TODO: tyler: do we want this?
+        _grantRole(PAUSER_ROLE, tokenIssuer);
         _grantRole(PAUSER_ROLE, msg.sender);
         if (tokenIssuer_ != address(0)) {
             emit TokenIssuerUpdated(address(0), tokenIssuer_);
