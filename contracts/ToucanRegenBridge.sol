@@ -4,6 +4,7 @@ pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 
 import "./interfaces/IContractRegistry.sol";
 import "./interfaces/ITCO2.sol";
@@ -14,7 +15,22 @@ import "./interfaces/INCTPool.sol";
  *
  * See README file for more information about the functionality
  */
-contract ToucanRegenBridge is Ownable, Pausable {
+contract ToucanRegenBridge is Ownable, Pausable, AccessControl {
+     // ----------------------------------------
+    //      Roles
+    // ----------------------------------------
+
+    bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
+
+    modifier onlyPauser() {
+        require(hasRole(PAUSER_ROLE, msg.sender), "Caller is not a pauser");
+        _;
+    }
+
+    // ----------------------------------------
+    //      State
+    // ----------------------------------------
+
     /// @notice total amount of tokens burned and signalled for transfer
     uint256 public totalTransferred;
 
@@ -62,6 +78,8 @@ contract ToucanRegenBridge is Ownable, Pausable {
     constructor(address tokenIssuer_, INCTPool nctPool_) Ownable() {
         tokenIssuer = tokenIssuer_;
         nctPool = nctPool_;
+        _grantRole(PAUSER_ROLE, tokenIssuer); // TODO: tyler: do we want this?
+        _grantRole(PAUSER_ROLE, msg.sender);
         if (tokenIssuer_ != address(0)) {
             emit TokenIssuerUpdated(address(0), tokenIssuer_);
         }
@@ -71,11 +89,11 @@ contract ToucanRegenBridge is Ownable, Pausable {
     //      Functions
     // ----------------------------------------
 
-    function pause() external onlyOwner {
+    function pause() external  onlyPauser {
         _pause();
     }
 
-    function unpause() external onlyOwner {
+    function unpause() external onlyPauser {
         _unpause();
     }
 
@@ -90,6 +108,14 @@ contract ToucanRegenBridge is Ownable, Pausable {
 
         tokenIssuer = newIssuer;
         emit TokenIssuerUpdated(oldIssuer, newIssuer);
+    }
+
+    function grantPauserRole(address newPauser) external onlyOwner {
+        _grantRole(PAUSER_ROLE, newPauser);
+    }
+
+    function revokePauserRole(address pauser) external onlyOwner {
+        _revokeRole(PAUSER_ROLE, pauser);
     }
 
     /**

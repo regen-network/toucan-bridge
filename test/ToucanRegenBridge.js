@@ -52,9 +52,22 @@ describe("Bridge contract", function () {
 		await bridge.connect(admin).unpause();
 		expect(await bridge.paused()).equal(false);
 
-		await expect(bridge.connect(broker).pause()).to.be.revertedWith("Ownable: caller is not the owner");
+		await expect(bridge.connect(broker).pause()).to.be.revertedWith("Caller is not a pauser");
 		expect(await bridge.paused()).equal(false);
 	});
+
+	it("should pause only with pauser role", async function() {
+		await bridge.connect(admin).grantPauserRole(broker.address);
+
+		await bridge.connect(broker).pause();
+		expect(await bridge.paused()).equal(true);
+
+		await bridge.connect(broker).unpause();
+		expect(await bridge.paused()).equal(false);
+
+		await bridge.connect(admin).revokePauserRole(broker.address);
+		await expect(bridge.connect(broker).pause()).to.be.revertedWith("Caller is not a pauser");
+	})
 
 	describe("Polygon to Regen", function () {
 		it("should fail with non positive amount", async function () {
