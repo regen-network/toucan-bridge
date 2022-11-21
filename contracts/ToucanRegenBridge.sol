@@ -23,7 +23,7 @@ contract ToucanRegenBridge is Ownable, Pausable, AccessControl {
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
     modifier onlyPauser() {
-        require(hasRole(PAUSER_ROLE, msg.sender), "Caller is not a pauser");
+        require(hasRole(PAUSER_ROLE, msg.sender), "caller does not have pauser role");
         _;
     }
 
@@ -78,9 +78,9 @@ contract ToucanRegenBridge is Ownable, Pausable, AccessControl {
     constructor(address tokenIssuer_, INCTPool nctPool_) Ownable() {
         tokenIssuer = tokenIssuer_;
         nctPool = nctPool_;
-        _grantRole(PAUSER_ROLE, tokenIssuer);
         _grantRole(PAUSER_ROLE, msg.sender);
         if (tokenIssuer_ != address(0)) {
+            _grantRole(PAUSER_ROLE, tokenIssuer_);
             emit TokenIssuerUpdated(address(0), tokenIssuer_);
         }
     }

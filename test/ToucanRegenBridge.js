@@ -52,7 +52,7 @@ describe("Bridge contract", function () {
 		await bridge.connect(admin).unpause();
 		expect(await bridge.paused()).equal(false);
 
-		await expect(bridge.connect(broker).pause()).to.be.revertedWith("Caller is not a pauser");
+		await expect(bridge.connect(broker).pause()).to.be.revertedWith("caller does not have pauser role");
 		expect(await bridge.paused()).equal(false);
 	});
 
@@ -66,7 +66,7 @@ describe("Bridge contract", function () {
 		expect(await bridge.paused()).equal(false);
 
 		await bridge.connect(admin).revokePauserRole(broker.address);
-		await expect(bridge.connect(broker).pause()).to.be.revertedWith("Caller is not a pauser");
+		await expect(bridge.connect(broker).pause()).to.be.revertedWith("caller does not have pauser role");
 	});
 
 	describe("Polygon to Regen", function () {
