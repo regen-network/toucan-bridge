@@ -64,8 +64,8 @@ contract ToucanRegenBridge is Ownable, Pausable, AccessControl {
 
     modifier isRegenAddress(bytes calldata account) {
         // verification: address length is 44 (standard) or 64 (derived)
-        bool length = account.length == 44 || account.length == 64;
-        require(length, "regen address must be 44 or 64 characters long");
+        uint256 accountLen = account.length;
+        require(accountLen == 44 || accountLen == 64, "regen address must be 44 or 64 chars");
 
         // verification: check address starts with "regen1" prefix
         bytes memory prefix = "regen1";

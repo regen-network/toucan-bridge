@@ -83,7 +83,7 @@ describe("Bridge contract", function () {
 
 			await expect(
 				bridge.connect(broker).bridge("cosmos1xrjg7dpdlfds8vhyj22hg5zhg9g7dwmlaxqsys", tco2.address, 10)
-			).to.be.revertedWith("regen address must be 44 or 64 characters long");
+			).to.be.revertedWith("regen address must be 44 or 64 chars");
 
 			await expect(
 				bridge.connect(broker).bridge("regen1xrjg7dpdlfds8vhyj22hg5zhg9g7dwmlaxqsy.", tco2.address, 10)
@@ -150,7 +150,7 @@ describe("Bridge contract", function () {
 						10,
 						"test"
 					)
-			).to.be.revertedWith("regen address must be 44 or 64 characters long");
+			).to.be.revertedWith("regen address must be 44 or 64 chars");
 		});
 
 		it("should fail with address length 45", async function () {
@@ -164,7 +164,7 @@ describe("Bridge contract", function () {
 						10,
 						"test"
 					)
-			).to.be.revertedWith("regen address must be 44 or 64 characters long");
+			).to.be.revertedWith("regen address must be 44 or 64 chars");
 		});
 
 		it("should fail with address length 63", async function () {
@@ -178,7 +178,7 @@ describe("Bridge contract", function () {
 						10,
 						"test"
 					)
-			).to.be.revertedWith("regen address must be 44 or 64 characters long");
+			).to.be.revertedWith("regen address must be 44 or 64 chars");
 		});
 
 		it("should fail with address length 65", async function () {
@@ -192,7 +192,7 @@ describe("Bridge contract", function () {
 						10,
 						"test"
 					)
-			).to.be.revertedWith("regen address must be 44 or 64 characters long");
+			).to.be.revertedWith("regen address must be 44 or 64 chars");
 		});
 
 		it("should fail with non regen sender address", async function () {
