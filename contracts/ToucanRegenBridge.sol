@@ -73,7 +73,7 @@ contract ToucanRegenBridge is Ownable, Pausable, AccessControl {
             require(prefix[i] == account[i], "regen address must start with 'regen1'");
 
         // verification: check address contains only alphanumeric characters
-        for (uint64 i = 0; i < account.length; i++) {
+        for (uint64 i = 0; i < accountLen; i++) {
             bytes1 char = account[i];
             require(
                 (char >= 0x30 && char <= 0x39) || //9-0
