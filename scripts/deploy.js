@@ -7,10 +7,10 @@ const { deployBridge } = require("../lib/bridge");
 const { deployFixedContracts } = require("../lib/toucan");
 
 const {
-	DEPLOY_ENVIRONMENT, 				// "live" or "local"
-	OWNER_MNEMONIC, 						// (optional) owner mnemonic
-	BRIDGE_CONTROLLER_ADDRESS,  // bridge controller address (i.e. token issuer)
-	NCT_POOL_ADDRESS,						// NCT pool address
+	DEPLOY_ENVIRONMENT, // "live" or "local"
+	OWNER_MNEMONIC, // (optional) owner mnemonic
+	BRIDGE_CONTROLLER_ADDRESS, // bridge controller address (i.e. token issuer)
+	NCT_POOL_ADDRESS, // NCT pool address
 } = process.env;
 
 async function deploy() {
@@ -18,9 +18,9 @@ async function deploy() {
 
 	switch (DEPLOY_ENVIRONMENT) {
 		case "live":
-			await deployLive()
+			await deployLive();
 		case "local":
-			await deployLocal()
+			await deployLocal();
 		default:
 			assert.fail(`unrecognized DEPLOY_ENVIRONMENT: ${DEPLOY_ENVIRONMENT}`);
 	}
@@ -30,7 +30,7 @@ async function deployLive() {
 	assert(BRIDGE_CONTROLLER_ADDRESS, "BRIDGE_CONTROLLER_ADDRESS environment variable must be set");
 	assert(NCT_POOL_ADDRESS, "NCT_POOL_ADDRESS environment variable must be set");
 
-  const contractOwner = await getOwner();
+	const contractOwner = await getOwner();
 
 	console.log(`Deploying bridge contract with the following addresses:`);
 	console.log(`Owner: ${contractOwner}`);
@@ -88,7 +88,7 @@ async function getOwner() {
 
 	console.log("OWNER_MNEMONIC environment variable not found. Looking for mnemonic.txt...");
 
-	let mnemonic
+	let mnemonic;
 	try {
 		mnemonic = fs.readFileSync("./mnemonic.txt").toString().trim();
 	} catch (e) {
