@@ -78,12 +78,16 @@ describe("Bridge contract", function () {
 
 		it("should fail with non regen recipient address", async function () {
 			await expect(
-				bridge.connect(broker).bridge("cosmos1xrjg7dpdlfds8vhyj22hg5zhg9g7dwmlaxqsys", tco2.address, 10)
+				bridge.connect(broker).bridge("cosmo1xrjg7dpdlfds8vhyj22hg5zhg9g7dwmlaxqsys", tco2.address, 10)
 			).to.be.revertedWith("regen address must start with 'regen1'");
 
-			await expect(bridge.connect(broker).bridge("regen1xrj", tco2.address, 10)).to.be.revertedWith(
-				"regen address is at least 44 characters long"
-			);
+			await expect(
+				bridge.connect(broker).bridge("cosmos1xrjg7dpdlfds8vhyj22hg5zhg9g7dwmlaxqsys", tco2.address, 10)
+			).to.be.revertedWith("regen address must be 44 or 64 characters long");
+
+			await expect(
+				bridge.connect(broker).bridge("regen1xrjg7dpdlfds8vhyj22hg5zhg9g7dwmlaxqsy.", tco2.address, 10)
+			).to.be.revertedWith("regen address must contain only alphanumeric characters");
 		});
 
 		it("should fail when contract is paused", async function () {
@@ -135,22 +139,88 @@ describe("Bridge contract", function () {
 			).to.be.revertedWith("amount must be positive");
 		});
 
+		it("should fail with address length 43", async function () {
+			await expect(
+				bridge
+					.connect(bridgeAdmin)
+					.issueTCO2Tokens(
+						"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+						broker.address,
+						tco2.address,
+						10,
+						"test"
+					)
+			).to.be.revertedWith("regen address must be 44 or 64 characters long");
+		});
+
+		it("should fail with address length 45", async function () {
+			await expect(
+				bridge
+					.connect(bridgeAdmin)
+					.issueTCO2Tokens(
+						"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+						broker.address,
+						tco2.address,
+						10,
+						"test"
+					)
+			).to.be.revertedWith("regen address must be 44 or 64 characters long");
+		});
+
+		it("should fail with address length 63", async function () {
+			await expect(
+				bridge
+					.connect(bridgeAdmin)
+					.issueTCO2Tokens(
+						"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+						broker.address,
+						tco2.address,
+						10,
+						"test"
+					)
+			).to.be.revertedWith("regen address must be 44 or 64 characters long");
+		});
+
+		it("should fail with address length 65", async function () {
+			await expect(
+				bridge
+					.connect(bridgeAdmin)
+					.issueTCO2Tokens(
+						"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+						broker.address,
+						tco2.address,
+						10,
+						"test"
+					)
+			).to.be.revertedWith("regen address must be 44 or 64 characters long");
+		});
+
 		it("should fail with non regen sender address", async function () {
 			await expect(
 				bridge
 					.connect(bridgeAdmin)
 					.issueTCO2Tokens(
-						"cosmos1xrjg7dpdlfds8vhyj22hg5zhg9g7dwmlaxqsys",
+						"cosmo1xrjg7dpdlfds8vhyj22hg5zhg9g7dwmlaxqsys",
 						broker.address,
 						tco2.address,
 						10,
 						"test"
 					)
 			).to.be.revertedWith("regen address must start with 'regen1'");
+		});
 
+		it("should fail with non alphanumeric characters", async function () {
 			await expect(
-				bridge.connect(bridgeAdmin).issueTCO2Tokens("regen1xrj", broker.address, tco2.address, 10, "test")
-			).to.be.revertedWith("regen address is at least 44 characters long");
+				bridge
+					.connect(bridgeAdmin)
+					.issueTCO2Tokens(
+						"regen1xrjg7dpdlfds8vhyj22hg5zhg9g7dwmlaxqsy.",
+						broker.address,
+						tco2.address,
+						10,
+						"test"
+					)
+			).to.be.revertedWith("regen address must contain only alphanumeric characters");
 		});
 
 		it("should fail when contract is paused", async function () {
