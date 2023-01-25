@@ -8,9 +8,9 @@ const { deployFixedContracts } = require("../lib/toucan");
 
 const {
 	DEPLOY_ENVIRONMENT, // "live" or "local"
-	OWNER_MNEMONIC, // (optional) owner mnemonic
-	BRIDGE_CONTROLLER_ADDRESS, // bridge controller address (i.e. token issuer)
-	NCT_POOL_ADDRESS, // NCT pool address
+	OWNER_MNEMONIC, // only used in "live" environment and not required if mnemonic.txt file exists
+	BRIDGE_CONTROLLER_ADDRESS, // only used in "live" environment
+	NCT_POOL_ADDRESS, // only used in "live" environment
 } = process.env;
 
 async function deploy() {
@@ -27,8 +27,8 @@ async function deploy() {
 }
 
 async function deployLive() {
-	assert(BRIDGE_CONTROLLER_ADDRESS, "BRIDGE_CONTROLLER_ADDRESS environment variable must be set");
-	assert(NCT_POOL_ADDRESS, "NCT_POOL_ADDRESS environment variable must be set");
+	assert.ok(BRIDGE_CONTROLLER_ADDRESS, "BRIDGE_CONTROLLER_ADDRESS environment variable must be set");
+	assert.ok(NCT_POOL_ADDRESS, "NCT_POOL_ADDRESS environment variable must be set");
 
 	const contractOwner = await getOwner();
 
