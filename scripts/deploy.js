@@ -84,7 +84,9 @@ async function deployLocal() {
 }
 
 async function getOwner() {
-	if (OWNER_MNEMONIC) return OWNER_MNEMONIC;
+	if (OWNER_MNEMONIC) {
+		return ethers.Wallet.fromMnemonic(OWNER_MNEMONIC);
+	}
 
 	console.log("OWNER_MNEMONIC environment variable not found. Looking for mnemonic.txt...");
 
