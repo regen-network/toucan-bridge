@@ -52,9 +52,9 @@ jobs:
         run: yarn build
 
       - name: Run Slither
-        uses: crytic/slither-action@v0.1.1
+        uses: crytic/slither-action@v0.2.0
         with:
           ignore-compile: true
           node-version: 16
           slither-config: ./slither.config.json
-          slither-version: v0.8.3
+          slither-version: dev-workaround-action-48-0.8.3

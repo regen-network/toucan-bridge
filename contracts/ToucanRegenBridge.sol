@@ -6,7 +6,6 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
-import "./interfaces/IContractRegistry.sol";
 import "./interfaces/ITCO2.sol";
 import "./interfaces/INCTPool.sol";
 
@@ -63,11 +62,25 @@ contract ToucanRegenBridge is Ownable, Pausable, AccessControl {
     // ----------------------------------------
 
     modifier isRegenAddress(bytes calldata account) {
-        // verification: checking if account starts with "regen1"
-        require(account.length >= 44, "regen address is at least 44 characters long");
+        // verification: address length is 44 (standard) or 64 (derived)
+        uint256 accountLen = account.length;
+        require(accountLen == 44 || accountLen == 64, "regen address must be 44 or 64 chars");
+
+        // verification: check address starts with "regen1" prefix
         bytes memory prefix = "regen1";
         for (uint8 i = 0; i < 6; ++i)
             require(prefix[i] == account[i], "regen address must start with 'regen1'");
+
+        // verification: check address contains only alphanumeric characters
+        for (uint64 i = 0; i < accountLen; i++) {
+            bytes1 char = account[i];
+            require(
+                (char >= 0x30 && char <= 0x39) || //9-0
+                    (char >= 0x41 && char <= 0x5A) || //A-Z
+                    (char >= 0x61 && char <= 0x7A), //a-z
+                "regen address must contain only alphanumeric characters"
+            );
+        }
         _;
     }
 
