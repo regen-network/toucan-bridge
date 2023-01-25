@@ -6,7 +6,6 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
-import "./interfaces/IContractRegistry.sol";
 import "./interfaces/ITCO2.sol";
 import "./interfaces/INCTPool.sol";
 
