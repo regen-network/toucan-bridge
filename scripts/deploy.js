@@ -89,15 +89,7 @@ async function getOwner() {
 	}
 
 	console.log("MNEMONIC environment variable not found. Looking for mnemonic.txt...");
-
-	let mnemonic;
-	try {
-		mnemonic = fs.readFileSync("./mnemonic.txt").toString().trim();
-	} catch (e) {
-		console.log(e);
-	}
-
-	assert.ok(mnemonic, `failed to get owner from MNEMONIC or mnemonic.txt`);
+	const mnemonic = fs.readFileSync("./mnemonic.txt").toString().trim();
 
 	return ethers.Wallet.fromMnemonic(mnemonic);
 }
