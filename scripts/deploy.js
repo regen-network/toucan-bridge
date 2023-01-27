@@ -19,8 +19,10 @@ async function deploy() {
 	switch (DEPLOY_ENVIRONMENT) {
 		case "live":
 			await deployLive();
+			break;
 		case "local":
 			await deployLocal();
+			break;
 		default:
 			assert.fail(`unrecognized DEPLOY_ENVIRONMENT: ${DEPLOY_ENVIRONMENT}`);
 	}
