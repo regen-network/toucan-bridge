@@ -8,7 +8,7 @@ const { deployFixedContracts } = require("../lib/toucan");
 
 const {
 	DEPLOY_ENVIRONMENT, // "live" or "local"
-	OWNER_MNEMONIC, // only used in "live" environment and not required if mnemonic.txt file exists
+	MNEMONIC, // only used in "live" environment and not required if mnemonic.txt file exists
 	BRIDGE_CONTROLLER_ADDRESS, // only used in "live" environment
 	NCT_POOL_ADDRESS, // only used in "live" environment
 } = process.env;
@@ -84,11 +84,11 @@ async function deployLocal() {
 }
 
 async function getOwner() {
-	if (OWNER_MNEMONIC) {
-		return ethers.Wallet.fromMnemonic(OWNER_MNEMONIC);
+	if (MNEMONIC) {
+		return ethers.Wallet.fromMnemonic(MNEMONIC);
 	}
 
-	console.log("OWNER_MNEMONIC environment variable not found. Looking for mnemonic.txt...");
+	console.log("MNEMONIC environment variable not found. Looking for mnemonic.txt...");
 
 	let mnemonic;
 	try {
@@ -97,7 +97,7 @@ async function getOwner() {
 		console.log(e);
 	}
 
-	assert.ok(mnemonic, `failed to get owner from OWNER_MNEMONIC or mnemonic.txt`);
+	assert.ok(mnemonic, `failed to get owner from MNEMONIC or mnemonic.txt`);
 
 	return ethers.Wallet.fromMnemonic(mnemonic);
 }
