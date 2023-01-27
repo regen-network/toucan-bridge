@@ -10,7 +10,7 @@ const {
 	DEPLOY_ENVIRONMENT, // "live" or "local"
 	MNEMONIC, // only used in "live" environment and not required if mnemonic.txt file exists
 	BRIDGE_CONTROLLER_ADDRESS, // only used in "live" environment
-	NCT_POOL_ADDRESS, // only used in "live" environment
+	NCT_ADDRESS, // only used in "live" environment
 } = process.env;
 
 async function deploy() {
@@ -28,16 +28,16 @@ async function deploy() {
 
 async function deployLive() {
 	assert.ok(BRIDGE_CONTROLLER_ADDRESS, "BRIDGE_CONTROLLER_ADDRESS environment variable must be set");
-	assert.ok(NCT_POOL_ADDRESS, "NCT_POOL_ADDRESS environment variable must be set");
+	assert.ok(NCT_ADDRESS, "NCT_ADDRESS environment variable must be set");
 
 	const contractOwner = await getOwner();
 
 	console.log(`Deploying bridge contract with the following addresses:`);
 	console.log(`Owner: ${contractOwner}`);
 	console.log(`Token Issuer: ${BRIDGE_CONTROLLER_ADDRESS}`);
-	console.log(`NCT Pool: ${NCT_POOL_ADDRESS}`);
+	console.log(`NCT Pool: ${NCT_ADDRESS}`);
 
-	const bridge = await deployBridge(BRIDGE_CONTROLLER_ADDRESS, NCT_POOL_ADDRESS);
+	const bridge = await deployBridge(BRIDGE_CONTROLLER_ADDRESS, NCT_ADDRESS);
 
 	console.log(`Deployed bridge with address ${bridge.address}`);
 	console.log("Remember to add bridge address to the allow list");
