@@ -27,17 +27,21 @@ async function deploy() {
 }
 
 async function deployLive() {
-	assert.ok(BRIDGE_CONTROLLER_ADDRESS, "BRIDGE_CONTROLLER_ADDRESS environment variable must be set");
 	assert.ok(NCT_ADDRESS, "NCT_ADDRESS environment variable must be set");
+	// Set minter to empty if not provided
+	let tokenIssuer = BRIDGE_CONTROLLER_ADDRESS;
+	if (!tokenIssuer) {
+		tokenIssuer = ethers.constants.AddressZero;
+	}
 
 	const contractOwner = await getOwner();
 
 	console.log(`Deploying bridge contract with the following addresses:`);
 	console.log(`Owner: ${contractOwner}`);
-	console.log(`Token Issuer: ${BRIDGE_CONTROLLER_ADDRESS}`);
+	console.log(`Token Issuer: ${tokenIssuer}`);
 	console.log(`NCT Pool: ${NCT_ADDRESS}`);
 
-	const bridge = await deployBridge(BRIDGE_CONTROLLER_ADDRESS, NCT_ADDRESS);
+	const bridge = await deployBridge(tokenIssuer, NCT_ADDRESS);
 
 	console.log(`Deployed bridge with address ${bridge.address}`);
 	console.log("Remember to add bridge address to the allow list");
