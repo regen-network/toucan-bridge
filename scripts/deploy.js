@@ -50,7 +50,7 @@ async function deployLocal() {
 
 	// registry, projects, vintages, batches, tco2Factory, nctPool
 	const env = await deployFixedContracts(adminAccount);
-	let contracts = {};
+	const contracts = {};
 	for (const key in env) {
 		contracts[key] = env[key].address;
 	}
