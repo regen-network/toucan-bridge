@@ -101,3 +101,4 @@ docs/_css/bootstrap.css
 artifacts/
 cache/
 contracts/toucan-contracts/
+deployments/
