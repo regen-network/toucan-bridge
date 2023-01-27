@@ -1,3 +1,4 @@
+require("fs");
 require("@nomiclabs/hardhat-waffle");
 require("@openzeppelin/hardhat-upgrades");
 require("@nomiclabs/hardhat-etherscan");
@@ -5,17 +6,37 @@ require("@nomiclabs/hardhat-ethers");
 require("hardhat-deploy");
 require("dotenv").config();
 
+const GAS_MULTIPLIER = Number(process.env.GAS_MULTIPLIER || 1.1);
+const GAS_PRICE = process.env.GAS_PRICE ? Number(process.env.GAS_PRICE) : 'auto';
+const GAS_LIMIT = process.env.GAS_LIMIT ? Number(process.env.GAS_LIMIT) : 'auto';
 const POLYGONSCAN_API_KEY = process.env.POLYGONSCAN_API_KEY || "";
+const PRIVATE_KEY = process.env.PRIVATE_KEY ? process.env.PRIVATE_KEY : "";
+const MNEMONIC = process.env.MNEMONIC ? process.env.MNEMONIC : mnemonic();
 
-// This is a sample Hardhat task. To learn how to create your own go to
-// https://hardhat.org/guides/create-task.html
-task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
-	const accounts = await hre.ethers.getSigners();
+const sharedNetworkConfig = {
+	gas: GAS_LIMIT,
+	gasMultiplier: GAS_MULTIPLIER,
+	gasPrice: GAS_PRICE,
+};
 
-	for (const account of accounts) {
-		console.log(account.address);
-	}
-});
+// Order of priority for account/signer generation:
+// 1) .env/PRIVATE_KEY
+// 2) .env/MNEMONIC
+// 3) ./mnemonic.txt
+if (PRIVATE_KEY) {
+	sharedNetworkConfig.accounts = [PRIVATE_KEY];
+  } else if (MNEMONIC) {
+	sharedNetworkConfig.accounts = {
+	  mnemonic: MNEMONIC,
+	};
+}
+
+function mnemonic() {
+	try {
+	  return fs.readFileSync('./mnemonic.txt').toString().trim();
+	} catch {}
+	return '';
+}
 
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
@@ -43,9 +64,13 @@ module.exports = {
 			allowUnlimitedContractSize: true,
 		},
 		matic: {
+			...sharedNetworkConfig,
+			gas: GAS_LIMIT || 5000000,
+			gasPrice: GAS_PRICE || 50000000000,
 			url: "https://matic-mainnet.chainstacklabs.com",
 		},
 		mumbai: {
+			...sharedNetworkConfig,
 			url: "https://matic-mumbai.chainstacklabs.com",
 		},
 	},

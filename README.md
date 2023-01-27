@@ -47,20 +47,30 @@ git submodule update --remote --merge
 yarn build
 ```
 
-### Deploy bridge
+### Deploy
 
-The bridge deploy script expects two environment variables. 1) address of the bridge controller: `BRIDGE_CONTROLLER_ADDRESS` and 2) address of the Toucan contract registry: `TOUCAN_CONTRACT_REGISTRY_ADDRESS`
+Copy `.env.example` to `.env` and set the desired configuration in `.env`.
 
 #### Testnets/Matic
 
 Before you deploy you should set up your signer wallet. You can either pass a mnemonic via the environment variable `MNEMONIC` or create a `mnemonic.txt` file with the seed phrase in the root of the repository.
 
+```shell
+yarn hardhat run scripts/deploy.js --network [matic|mumbai]
+```
+
 #### Locally
 
 The mnemonic is not required for local deployments. The script will automatically default to the first signer account from Hardhat.
 
+Run a Hardhat node in one terminal:
 ```shell
-yarn hardhat run scripts/toucan-bridge.js --network <network>
+yarn hardhat node
+```
+
+In another terminal deploy the bridge and all Toucan-related contracts:
+```shell
+yarn hardhat run scripts/deploy-local.js --network localhost
 ```
 
 ### Verify in Polygonscan
@@ -68,7 +78,7 @@ yarn hardhat run scripts/toucan-bridge.js --network <network>
 Add a Polygonscan API key in your `.env` file, then run:
 
 ```
-yarn hardhat verify <contract_address> --contract contracts/ToucanRegenBridge.sol:ToucanRegenBridge <issuer_address> <nct_address> --network <network>
+yarn hardhat verify <contract_address> <issuer_address> <nct_address> --network <network>
 ```
 
 ## License

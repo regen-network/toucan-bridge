@@ -18,10 +18,10 @@ async function deploy() {
 		tokenIssuer = hre.ethers.constants.AddressZero;
 	}
 
-	const contractOwner = await getOwner();
+	const [ deployer ] = await hre.ethers.getSigners();
 
 	console.log(`Deploying bridge contract with the following addresses:`);
-	console.log(`Owner: ${contractOwner}`);
+	console.log(`Owner: ${deployer.address}`);
 	console.log(`Token Issuer: ${tokenIssuer}`);
 	console.log(`NCT Pool: ${NCT_ADDRESS}`);
 
@@ -29,17 +29,6 @@ async function deploy() {
 
 	console.log(`Deployed bridge with address ${bridge.address}`);
 	console.log("Remember to add bridge address to the allow list");
-}
-
-async function getOwner() {
-	if (MNEMONIC) {
-		return hre.ethers.Wallet.fromMnemonic(MNEMONIC);
-	}
-
-	console.log("MNEMONIC environment variable not found. Looking for mnemonic.txt...");
-	const mnemonic = fs.readFileSync("./mnemonic.txt").toString().trim();
-
-	return hre.ethers.Wallet.fromMnemonic(mnemonic);
 }
 
 deploy()
