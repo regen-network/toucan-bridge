@@ -4,11 +4,7 @@ const hre = require("hardhat");
 
 const { deployBridge } = require("../lib/bridge");
 
-const {
-	MNEMONIC,
-	BRIDGE_CONTROLLER_ADDRESS,
-	NCT_ADDRESS,
-} = process.env;
+const { MNEMONIC, BRIDGE_CONTROLLER_ADDRESS, NCT_ADDRESS } = process.env;
 
 async function deploy() {
 	assert.ok(NCT_ADDRESS, "NCT_ADDRESS environment variable must be set");
@@ -18,7 +14,7 @@ async function deploy() {
 		tokenIssuer = hre.ethers.constants.AddressZero;
 	}
 
-	const [ deployer ] = await hre.ethers.getSigners();
+	const [deployer] = await hre.ethers.getSigners();
 
 	console.log(`Deploying bridge contract with the following addresses:`);
 	console.log(`Owner: ${deployer.address}`);

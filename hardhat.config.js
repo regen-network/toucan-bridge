@@ -7,8 +7,8 @@ require("hardhat-deploy");
 require("dotenv").config();
 
 const GAS_MULTIPLIER = Number(process.env.GAS_MULTIPLIER || 1.1);
-const GAS_PRICE = process.env.GAS_PRICE ? Number(process.env.GAS_PRICE) : 'auto';
-const GAS_LIMIT = process.env.GAS_LIMIT ? Number(process.env.GAS_LIMIT) : 'auto';
+const GAS_PRICE = process.env.GAS_PRICE ? Number(process.env.GAS_PRICE) : "auto";
+const GAS_LIMIT = process.env.GAS_LIMIT ? Number(process.env.GAS_LIMIT) : "auto";
 const POLYGONSCAN_API_KEY = process.env.POLYGONSCAN_API_KEY || "";
 const PRIVATE_KEY = process.env.PRIVATE_KEY ? process.env.PRIVATE_KEY : "";
 const MNEMONIC = process.env.MNEMONIC ? process.env.MNEMONIC : mnemonic();
@@ -25,17 +25,17 @@ const sharedNetworkConfig = {
 // 3) ./mnemonic.txt
 if (PRIVATE_KEY) {
 	sharedNetworkConfig.accounts = [PRIVATE_KEY];
-  } else if (MNEMONIC) {
+} else if (MNEMONIC) {
 	sharedNetworkConfig.accounts = {
-	  mnemonic: MNEMONIC,
+		mnemonic: MNEMONIC,
 	};
 }
 
 function mnemonic() {
 	try {
-	  return fs.readFileSync('./mnemonic.txt').toString().trim();
+		return fs.readFileSync("./mnemonic.txt").toString().trim();
 	} catch {}
-	return '';
+	return "";
 }
 
 // You need to export an object to set up your config

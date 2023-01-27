@@ -64,11 +64,13 @@ yarn hardhat run scripts/deploy.js --network [matic|mumbai]
 The mnemonic is not required for local deployments. The script will automatically default to the first signer account from Hardhat.
 
 Run a Hardhat node in one terminal:
+
 ```shell
 yarn hardhat node
 ```
 
 In another terminal deploy the bridge and all Toucan-related contracts:
+
 ```shell
 yarn hardhat run scripts/deploy-local.js --network localhost
 ```
