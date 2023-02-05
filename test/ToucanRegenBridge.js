@@ -245,6 +245,20 @@ describe("Bridge contract", function () {
 			await expect(tx).to.be.revertedWith("invalid caller");
 		});
 
+		it("should fail with underflow when issue is larger than bridge", async function () {
+			const amountBefore = await tco2.balanceOf(broker.address);
+			const amountToTransfer = toWei("1.0");
+			const amountToIssue = toWei("1.5");
+
+			await bridge.connect(broker).bridge(regenUser, tco2.address, amountToTransfer);
+			const tx = bridge
+				.connect(bridgeAdmin)
+				.issueTCO2Tokens(regenUser, broker.address, tco2.address, amountToIssue, "test");
+			await expect(tx).to.be.revertedWith(
+				"reverted with panic code 0x11 (Arithmetic operation underflowed or overflowed outside of an unchecked block)"
+			);
+		});
+
 		it("should mint successfully", async function () {
 			const amountBefore = await tco2.balanceOf(broker.address);
 			const amountToTransfer = toWei("1.0");
@@ -257,8 +271,39 @@ describe("Bridge contract", function () {
 			const newBalance = await tco2.balanceOf(broker.address);
 			const newTransferred = await bridge.totalTransferred();
 			expect(newBalance).to.equal(amountBefore);
-			expect(newTransferred).to.equal(amountToTransfer);
+			expect(newTransferred).to.equal(0);
 			expect(await bridge.tco2Limits(tco2.address)).to.equal(0);
+		});
+
+		it("should mint successfully and keep right totalTransfered balance", async function () {
+			let newTransferred = 0;
+			const amountBefore = await tco2.balanceOf(broker.address);
+			const amountToTransfer = toWei("1.0");
+
+			const amountToIssue1st = toWei("0.5");
+			const amountToIssue2nd = toWei("0.4");
+
+			await bridge.connect(broker).bridge(regenUser, tco2.address, amountToTransfer);
+			await bridge
+				.connect(bridgeAdmin)
+				.issueTCO2Tokens(regenUser, broker.address, tco2.address, amountToIssue1st, "test1st");
+
+			newTransferred = await bridge.totalTransferred();
+			expect(newTransferred).to.equal(toWei("0.5"));
+
+			await bridge
+				.connect(bridgeAdmin)
+				.issueTCO2Tokens(regenUser, broker.address, tco2.address, amountToIssue2nd, "test2nd");
+
+			newTransferred = await bridge.totalTransferred();
+			expect(newTransferred).to.equal(toWei("0.1"));
+
+			await bridge
+				.connect(bridgeAdmin)
+				.issueTCO2Tokens(regenUser, broker.address, tco2.address, newTransferred, "test");
+
+			newTransferred = await bridge.totalTransferred();
+			expect(newTransferred).to.equal(0);
 		});
 
 		it("should enable issuer rotation", async function () {
