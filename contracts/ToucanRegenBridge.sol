@@ -153,7 +153,11 @@ contract ToucanRegenBridge is Ownable, Pausable, AccessControl {
         require(amount == precisionTest, "Only precision up to 6 decimals allowed");
 
         totalTransferred += amount;
-        tco2Limits[tco2] += amount;
+        unchecked {
+            // not possible to overflow if totalTransferred above
+            // does not overflow
+            tco2Limits[tco2] += amount;
+        }
 
         emit Bridge(msg.sender, recipient, tco2, amount);
         ITCO2(tco2).bridgeBurn(msg.sender, amount);
@@ -184,6 +188,11 @@ contract ToucanRegenBridge is Ownable, Pausable, AccessControl {
         // in case we try to mint more for a TCO2 than what has been burnt so it will
         // result in reverting the transaction.
         tco2Limits[tco2] -= amount;
+        unchecked {
+            // not possible to underflow if tco2Limits[tco2] above
+            // does not underflow
+            totalTransferred -= amount;
+        }
 
         emit Issue(sender, recipient, tco2, amount, origin);
         ITCO2(tco2).bridgeMint(recipient, amount);
