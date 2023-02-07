@@ -43,7 +43,7 @@ function mnemonic() {
 
 module.exports = {
 	solidity: {
-		version: "0.8.4",
+		version: "0.8.14",
 		settings: {
 			optimizer: {
 				runs: 200,

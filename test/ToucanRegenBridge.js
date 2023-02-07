@@ -37,7 +37,7 @@ describe("Bridge contract", function () {
 
 		// Deploy ToucanRegenBridge
 		bridge = await deployBridge(bridgeAdmin.address, nctPool.address);
-		await tco2Factory.addToAllowlist(bridge.address);
+		await tco2Factory.addToAllowedBridges(bridge.address);
 	});
 
 	it("Should set the right owner and initial parameters", async function () {
@@ -99,14 +99,16 @@ describe("Bridge contract", function () {
 		});
 
 		it("should fail with non-TCO2 contract", async function () {
+			const CP_NOT_WHITELISTED = "5";
 			await expect(bridge.connect(broker).bridge(regenUser, tco2Factory.address, 10)).to.be.revertedWith(
-				"Not whitelisted"
+				CP_NOT_WHITELISTED
 			);
 		});
 
 		it("should fail with NCT non-eligible TCO2 contract", async function () {
+			const CP_METHODOLOGY_NOT_ACCEPTED = "9";
 			await expect(bridge.connect(broker).bridge(regenUser, nonEligibleTco2.address, 10)).to.be.revertedWith(
-				"Methodology not accepted"
+				CP_METHODOLOGY_NOT_ACCEPTED
 			);
 		});
 
