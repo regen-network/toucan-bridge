@@ -4,8 +4,10 @@ const { ethers } = require("hardhat");
 
 const { deployBridge } = require("../lib/bridge");
 const { prepareToucanEnv } = require("../lib/toucan");
+const { utils } = require("ethers");
 
 const DEFAULT_ADMIN_ROLE = ethers.constants.HashZero;
+const PAUSER_ROLE = utils.id("PAUSER_ROLE");
 
 function toWei(quantity) {
 	return ethers.utils.parseEther(quantity.toString(10));
@@ -60,7 +62,7 @@ describe("Bridge contract", function () {
 	});
 
 	it("should pause only with pauser role", async function () {
-		await bridge.connect(admin).grantPauserRole(broker.address);
+		await bridge.connect(admin).grantRole(PAUSER_ROLE, broker.address);
 
 		await bridge.connect(broker).pause();
 		expect(await bridge.paused()).equal(true);
@@ -68,7 +70,7 @@ describe("Bridge contract", function () {
 		await bridge.connect(broker).unpause();
 		expect(await bridge.paused()).equal(false);
 
-		await bridge.connect(admin).revokePauserRole(broker.address);
+		await bridge.connect(admin).revokeRole(PAUSER_ROLE, broker.address);
 		await expect(bridge.connect(broker).pause()).to.be.revertedWith("caller does not have pauser role");
 	});
 

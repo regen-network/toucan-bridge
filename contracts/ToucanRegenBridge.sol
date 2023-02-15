@@ -125,14 +125,6 @@ contract ToucanRegenBridge is Pausable, AccessControl {
         emit TokenIssuerUpdated(oldIssuer, newIssuer);
     }
 
-    function grantPauserRole(address newPauser) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        _grantRole(PAUSER_ROLE, newPauser);
-    }
-
-    function revokePauserRole(address pauser) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        _revokeRole(PAUSER_ROLE, pauser);
-    }
-
     /**
      * @dev bridge tokens to Regen Network.
      * Burns Toucan TCO2 compatible tokens and signals a bridge event.
