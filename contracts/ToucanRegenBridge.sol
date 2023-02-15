@@ -3,7 +3,6 @@
 pragma solidity 0.8.14;
 
 import "@openzeppelin/contracts/security/Pausable.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
 import "./interfaces/ITCO2.sol";
@@ -14,7 +13,7 @@ import "./interfaces/INCTPool.sol";
  *
  * See README file for more information about the functionality
  */
-contract ToucanRegenBridge is Ownable, Pausable, AccessControl {
+contract ToucanRegenBridge is Pausable, AccessControl {
     // ----------------------------------------
     //      Roles
     // ----------------------------------------
@@ -90,9 +89,10 @@ contract ToucanRegenBridge is Ownable, Pausable, AccessControl {
     //      Constructor
     // ----------------------------------------
 
-    constructor(address tokenIssuer_, INCTPool nctPool_) Ownable() {
+    constructor(address tokenIssuer_, INCTPool nctPool_) {
         tokenIssuer = tokenIssuer_;
         nctPool = nctPool_;
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(PAUSER_ROLE, msg.sender);
         if (tokenIssuer_ != address(0)) {
             _grantRole(PAUSER_ROLE, tokenIssuer_);
@@ -117,7 +117,7 @@ contract ToucanRegenBridge is Ownable, Pausable, AccessControl {
      * token issuer.
      * @param newIssuer Token issuer to be set
      */
-    function setTokenIssuer(address newIssuer) external onlyOwner {
+    function setTokenIssuer(address newIssuer) external onlyRole(DEFAULT_ADMIN_ROLE) {
         address oldIssuer = tokenIssuer;
         require(oldIssuer != newIssuer, "already set");
 
@@ -125,11 +125,11 @@ contract ToucanRegenBridge is Ownable, Pausable, AccessControl {
         emit TokenIssuerUpdated(oldIssuer, newIssuer);
     }
 
-    function grantPauserRole(address newPauser) external onlyOwner {
+    function grantPauserRole(address newPauser) external onlyRole(DEFAULT_ADMIN_ROLE) {
         _grantRole(PAUSER_ROLE, newPauser);
     }
 
-    function revokePauserRole(address pauser) external onlyOwner {
+    function revokePauserRole(address pauser) external onlyRole(DEFAULT_ADMIN_ROLE) {
         _revokeRole(PAUSER_ROLE, pauser);
     }
 

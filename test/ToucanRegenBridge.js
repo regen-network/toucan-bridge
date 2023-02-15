@@ -5,6 +5,8 @@ const { ethers } = require("hardhat");
 const { deployBridge } = require("../lib/bridge");
 const { prepareToucanEnv } = require("../lib/toucan");
 
+const DEFAULT_ADMIN_ROLE = ethers.constants.HashZero;
+
 function toWei(quantity) {
 	return ethers.utils.parseEther(quantity.toString(10));
 }
@@ -40,8 +42,9 @@ describe("Bridge contract", function () {
 		await tco2Factory.addToAllowedBridges(bridge.address);
 	});
 
-	it("Should set the right owner and initial parameters", async function () {
-		expect(await bridge.owner()).to.equal(admin.address);
+	it("Should set the right default admin and initial parameters", async function () {
+		const isAdmin = await bridge.hasRole(DEFAULT_ADMIN_ROLE, admin.address);
+		expect(isAdmin).to.be.true;
 		expect(await bridge.totalTransferred()).to.equal(0);
 	});
 
