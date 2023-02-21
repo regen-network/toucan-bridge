@@ -19,6 +19,7 @@ contract ToucanRegenBridge is Pausable, AccessControl {
     // ----------------------------------------
 
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
+    bytes32 public constant TOKEN_ISSUER_ROLE = keccak256("TOKEN_ISSUER_ROLE");
 
     modifier onlyPauser() {
         require(hasRole(PAUSER_ROLE, msg.sender), "caller does not have pauser role");
@@ -36,9 +37,6 @@ contract ToucanRegenBridge is Pausable, AccessControl {
     /// mechanism during the minting process
     mapping(address => uint256) public tco2Limits;
 
-    /// @notice address of the bridge wallet authorized to issue TCO2 tokens.
-    address public tokenIssuer;
-
     /// @notice address of the NCT pool to be able to check TCO2 eligibility
     INCTPool public immutable nctPool;
 
@@ -53,8 +51,6 @@ contract ToucanRegenBridge is Pausable, AccessControl {
     event Bridge(address sender, string recipient, address tco2, uint256 amount);
     /// @notice emited when we bridge tokens back from Regen Ledger and issue on TCO2 contract
     event Issue(string sender, address recipient, address tco2, uint256 amount, string origin);
-    /// @notice emited when the token issuer is updated
-    event TokenIssuerUpdated(address oldIssuer, address newIssuer);
 
     // ----------------------------------------
     //      Modifiers
@@ -89,15 +85,10 @@ contract ToucanRegenBridge is Pausable, AccessControl {
     //      Constructor
     // ----------------------------------------
 
-    constructor(address tokenIssuer_, INCTPool nctPool_) {
-        tokenIssuer = tokenIssuer_;
+    constructor(INCTPool nctPool_) {
         nctPool = nctPool_;
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(PAUSER_ROLE, msg.sender);
-        if (tokenIssuer_ != address(0)) {
-            _grantRole(PAUSER_ROLE, tokenIssuer_);
-            emit TokenIssuerUpdated(address(0), tokenIssuer_);
-        }
     }
 
     // ----------------------------------------
@@ -110,19 +101,6 @@ contract ToucanRegenBridge is Pausable, AccessControl {
 
     function unpause() external onlyPauser {
         _unpause();
-    }
-
-    /**
-     * @notice Enable the contract owner to rotate the
-     * token issuer.
-     * @param newIssuer Token issuer to be set
-     */
-    function setTokenIssuer(address newIssuer) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        address oldIssuer = tokenIssuer;
-        require(oldIssuer != newIssuer, "already set");
-
-        tokenIssuer = newIssuer;
-        emit TokenIssuerUpdated(oldIssuer, newIssuer);
     }
 
     /**
@@ -171,8 +149,11 @@ contract ToucanRegenBridge is Pausable, AccessControl {
         uint256 amount,
         string calldata origin
     ) external whenNotPaused isRegenAddress(bytes(sender)) {
+        require(
+            hasRole(TOKEN_ISSUER_ROLE, msg.sender),
+            "AccessControl: caller is missing TOKEN_ISSUER_ROLE"
+        );
         require(amount > 0, "amount must be positive");
-        require(msg.sender == tokenIssuer, "invalid caller");
         require(!origins[origin], "duplicate origin");
         origins[origin] = true;
 

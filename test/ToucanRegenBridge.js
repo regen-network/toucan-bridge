@@ -8,6 +8,7 @@ const { utils } = require("ethers");
 
 const DEFAULT_ADMIN_ROLE = ethers.constants.HashZero;
 const PAUSER_ROLE = utils.id("PAUSER_ROLE");
+const TOKEN_ISSUER_ROLE = utils.id("TOKEN_ISSUER_ROLE");
 
 function toWei(quantity) {
 	return ethers.utils.parseEther(quantity.toString(10));
@@ -40,7 +41,8 @@ describe("Bridge contract", function () {
 		[admin, tokenIssuer, broker] = await ethers.getSigners();
 
 		// Deploy ToucanRegenBridge
-		bridge = await deployBridge(tokenIssuer.address, nctPool.address);
+		bridge = await deployBridge(admin, nctPool.address);
+		await bridge.connect(admin).grantRole(TOKEN_ISSUER_ROLE, tokenIssuer.address);
 		await tco2Factory.addToAllowedBridges(bridge.address);
 	});
 
@@ -142,7 +144,7 @@ describe("Bridge contract", function () {
 	describe("Regen to Polygon", function () {
 		it("should fail with non positive amount", async function () {
 			await expect(
-				bridge.connect(broker).issueTCO2Tokens(regenUser, broker.address, tco2.address, 0, "test")
+				bridge.connect(tokenIssuer).issueTCO2Tokens(regenUser, broker.address, tco2.address, 0, "test")
 			).to.be.revertedWith("amount must be positive");
 		});
 
@@ -249,7 +251,7 @@ describe("Bridge contract", function () {
 
 		it("should fail with non-bridge admin account", async function () {
 			const tx = bridge.connect(broker).issueTCO2Tokens(regenUser, broker.address, tco2.address, 100, "test");
-			await expect(tx).to.be.revertedWith("invalid caller");
+			await expect(tx).to.be.revertedWith("AccessControl: caller is missing TOKEN_ISSUER_ROLE");
 		});
 
 		it("should fail with underflow when issue is larger than bridge", async function () {
@@ -322,27 +324,23 @@ describe("Bridge contract", function () {
 			let tx = bridge
 				.connect(admin)
 				.issueTCO2Tokens(regenUser, broker.address, tco2.address, halfAmount, "test");
-			await expect(tx).to.be.revertedWith("invalid caller");
+			await expect(tx).to.be.revertedWith("AccessControl: caller is missing TOKEN_ISSUER_ROLE");
 			await bridge
 				.connect(tokenIssuer)
 				.issueTCO2Tokens(regenUser, broker.address, tco2.address, halfAmount, "test");
 
-			// Rotate tokenIssuer to admin
-			await bridge.connect(admin).setTokenIssuer(admin.address);
+			// Rotate bridgeAdmin to admin
+			await bridge.connect(admin).grantRole(TOKEN_ISSUER_ROLE, admin.address);
+			await bridge.connect(admin).revokeRole(TOKEN_ISSUER_ROLE, tokenIssuer.address);
 
 			// Check that tokenIssuer cannot mint but admin can
 			tx = bridge
 				.connect(tokenIssuer)
 				.issueTCO2Tokens(regenUser, broker.address, tco2.address, halfAmount, "test1");
-			await expect(tx).to.be.revertedWith("invalid caller");
+			await expect(tx).to.be.revertedWith("AccessControl: caller is missing TOKEN_ISSUER_ROLE");
 			await bridge
 				.connect(admin)
 				.issueTCO2Tokens(regenUser, broker.address, tco2.address, halfAmount, "test1");
-		});
-
-		it("should fail if issuer already set", async function () {
-			const tx = bridge.connect(admin).setTokenIssuer(tokenIssuer.address);
-			await expect(tx).to.be.revertedWith("already set");
 		});
 
 		it("should fail on duplicate request", async function () {
