@@ -20,12 +20,12 @@ describe("Bridge contract", function () {
 	let tco2Factory;
 	let nctPool;
 	let admin;
-	let bridgeAdmin;
+	let tokenIssuer;
 	let broker;
 	const regenUser = "regen1xrjg7dpdlfds8vhyj22hg5zhg9g7dwmlaxqsys";
 
 	before(async function () {
-		[admin, bridgeAdmin, broker] = await ethers.getSigners();
+		[admin, tokenIssuer, broker] = await ethers.getSigners();
 
 		// Deploy Toucan infra
 		const env = await prepareToucanEnv(admin, broker);
@@ -37,10 +37,10 @@ describe("Bridge contract", function () {
 	});
 
 	beforeEach(async function () {
-		[admin, bridgeAdmin, broker] = await ethers.getSigners();
+		[admin, tokenIssuer, broker] = await ethers.getSigners();
 
 		// Deploy ToucanRegenBridge
-		bridge = await deployBridge(bridgeAdmin.address, nctPool.address);
+		bridge = await deployBridge(tokenIssuer.address, nctPool.address);
 		await tco2Factory.addToAllowedBridges(bridge.address);
 	});
 
@@ -149,7 +149,7 @@ describe("Bridge contract", function () {
 		it("should fail with address length 43", async function () {
 			await expect(
 				bridge
-					.connect(bridgeAdmin)
+					.connect(tokenIssuer)
 					.issueTCO2Tokens(
 						"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
 						broker.address,
@@ -163,7 +163,7 @@ describe("Bridge contract", function () {
 		it("should fail with address length 45", async function () {
 			await expect(
 				bridge
-					.connect(bridgeAdmin)
+					.connect(tokenIssuer)
 					.issueTCO2Tokens(
 						"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
 						broker.address,
@@ -177,7 +177,7 @@ describe("Bridge contract", function () {
 		it("should fail with address length 63", async function () {
 			await expect(
 				bridge
-					.connect(bridgeAdmin)
+					.connect(tokenIssuer)
 					.issueTCO2Tokens(
 						"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
 						broker.address,
@@ -191,7 +191,7 @@ describe("Bridge contract", function () {
 		it("should fail with address length 65", async function () {
 			await expect(
 				bridge
-					.connect(bridgeAdmin)
+					.connect(tokenIssuer)
 					.issueTCO2Tokens(
 						"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
 						broker.address,
@@ -205,7 +205,7 @@ describe("Bridge contract", function () {
 		it("should fail with non regen sender address", async function () {
 			await expect(
 				bridge
-					.connect(bridgeAdmin)
+					.connect(tokenIssuer)
 					.issueTCO2Tokens(
 						"cosmo1xrjg7dpdlfds8vhyj22hg5zhg9g7dwmlaxqsys",
 						broker.address,
@@ -219,7 +219,7 @@ describe("Bridge contract", function () {
 		it("should fail with non alphanumeric characters", async function () {
 			await expect(
 				bridge
-					.connect(bridgeAdmin)
+					.connect(tokenIssuer)
 					.issueTCO2Tokens(
 						"regen1xrjg7dpdlfds8vhyj22hg5zhg9g7dwmlaxqsy.",
 						broker.address,
@@ -234,13 +234,13 @@ describe("Bridge contract", function () {
 			await bridge.connect(admin).pause();
 
 			await expect(
-				bridge.connect(bridgeAdmin).issueTCO2Tokens(regenUser, broker.address, tco2.address, 10, "test")
+				bridge.connect(tokenIssuer).issueTCO2Tokens(regenUser, broker.address, tco2.address, 10, "test")
 			).to.be.revertedWith("Pausable: paused");
 		});
 
 		it("should not mint before burning occurs", async function () {
 			const tx = bridge
-				.connect(bridgeAdmin)
+				.connect(tokenIssuer)
 				.issueTCO2Tokens(regenUser, broker.address, tco2.address, 100, "test");
 			await expect(tx).to.be.revertedWith(
 				"reverted with panic code 0x11 (Arithmetic operation underflowed or overflowed outside of an unchecked block)"
@@ -259,7 +259,7 @@ describe("Bridge contract", function () {
 
 			await bridge.connect(broker).bridge(regenUser, tco2.address, amountToTransfer);
 			const tx = bridge
-				.connect(bridgeAdmin)
+				.connect(tokenIssuer)
 				.issueTCO2Tokens(regenUser, broker.address, tco2.address, amountToIssue, "test");
 			await expect(tx).to.be.revertedWith(
 				"reverted with panic code 0x11 (Arithmetic operation underflowed or overflowed outside of an unchecked block)"
@@ -272,7 +272,7 @@ describe("Bridge contract", function () {
 
 			await bridge.connect(broker).bridge(regenUser, tco2.address, amountToTransfer);
 			await bridge
-				.connect(bridgeAdmin)
+				.connect(tokenIssuer)
 				.issueTCO2Tokens(regenUser, broker.address, tco2.address, amountToTransfer, "test");
 
 			const newBalance = await tco2.balanceOf(broker.address);
@@ -292,21 +292,21 @@ describe("Bridge contract", function () {
 
 			await bridge.connect(broker).bridge(regenUser, tco2.address, amountToTransfer);
 			await bridge
-				.connect(bridgeAdmin)
+				.connect(tokenIssuer)
 				.issueTCO2Tokens(regenUser, broker.address, tco2.address, amountToIssue1st, "test1st");
 
 			newTransferred = await bridge.totalTransferred();
 			expect(newTransferred).to.equal(toWei("0.5"));
 
 			await bridge
-				.connect(bridgeAdmin)
+				.connect(tokenIssuer)
 				.issueTCO2Tokens(regenUser, broker.address, tco2.address, amountToIssue2nd, "test2nd");
 
 			newTransferred = await bridge.totalTransferred();
 			expect(newTransferred).to.equal(toWei("0.1"));
 
 			await bridge
-				.connect(bridgeAdmin)
+				.connect(tokenIssuer)
 				.issueTCO2Tokens(regenUser, broker.address, tco2.address, newTransferred, "test");
 
 			newTransferred = await bridge.totalTransferred();
@@ -318,21 +318,21 @@ describe("Bridge contract", function () {
 			const halfAmount = toWei("0.5");
 			await bridge.connect(broker).bridge(regenUser, tco2.address, amount);
 
-			// Check that admin cannot mint but bridgeAdmin can
+			// Check that admin cannot mint but tokenIssuer can
 			let tx = bridge
 				.connect(admin)
 				.issueTCO2Tokens(regenUser, broker.address, tco2.address, halfAmount, "test");
 			await expect(tx).to.be.revertedWith("invalid caller");
 			await bridge
-				.connect(bridgeAdmin)
+				.connect(tokenIssuer)
 				.issueTCO2Tokens(regenUser, broker.address, tco2.address, halfAmount, "test");
 
-			// Rotate bridgeAdmin to admin
+			// Rotate tokenIssuer to admin
 			await bridge.connect(admin).setTokenIssuer(admin.address);
 
-			// Check that bridgeAdmin cannot mint but admin can
+			// Check that tokenIssuer cannot mint but admin can
 			tx = bridge
-				.connect(bridgeAdmin)
+				.connect(tokenIssuer)
 				.issueTCO2Tokens(regenUser, broker.address, tco2.address, halfAmount, "test1");
 			await expect(tx).to.be.revertedWith("invalid caller");
 			await bridge
@@ -341,7 +341,7 @@ describe("Bridge contract", function () {
 		});
 
 		it("should fail if issuer already set", async function () {
-			const tx = bridge.connect(admin).setTokenIssuer(bridgeAdmin.address);
+			const tx = bridge.connect(admin).setTokenIssuer(tokenIssuer.address);
 			await expect(tx).to.be.revertedWith("already set");
 		});
 
@@ -350,11 +350,11 @@ describe("Bridge contract", function () {
 
 			await bridge.connect(broker).bridge(regenUser, tco2.address, amountToTransfer);
 			await bridge
-				.connect(bridgeAdmin)
+				.connect(tokenIssuer)
 				.issueTCO2Tokens(regenUser, broker.address, tco2.address, amountToTransfer, "test");
 			await expect(
 				bridge
-					.connect(bridgeAdmin)
+					.connect(tokenIssuer)
 					.issueTCO2Tokens(regenUser, broker.address, tco2.address, amountToTransfer, "test")
 			).to.be.revertedWith("duplicate origin");
 		});
