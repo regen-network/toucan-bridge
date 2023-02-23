@@ -85,10 +85,19 @@ contract ToucanRegenBridge is Pausable, AccessControl {
     //      Constructor
     // ----------------------------------------
 
-    constructor(INCTPool nctPool_) {
+    constructor(
+        INCTPool nctPool_,
+        bytes32[] memory roles,
+        address[] memory accounts
+    ) {
+        require(accounts.length == roles.length, "accounts and roles must have same length");
         nctPool = nctPool_;
-        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _grantRole(PAUSER_ROLE, msg.sender);
+        bool hasAdmin = false;
+        for (uint256 i = 0; i < accounts.length; ++i) {
+            _grantRole(roles[i], accounts[i]);
+            if (roles[i] == DEFAULT_ADMIN_ROLE) hasAdmin = true;
+        }
+        require(hasAdmin, "should have at least one admin role");
     }
 
     // ----------------------------------------

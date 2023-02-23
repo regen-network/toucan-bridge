@@ -41,9 +41,31 @@ describe("Bridge contract", function () {
 		[admin, tokenIssuer, broker] = await ethers.getSigners();
 
 		// Deploy ToucanRegenBridge
-		bridge = await deployBridge(admin, nctPool.address);
-		await bridge.connect(admin).grantRole(TOKEN_ISSUER_ROLE, tokenIssuer.address);
+		bridge = await deployBridge(
+			admin,
+			nctPool.address,
+			[DEFAULT_ADMIN_ROLE, PAUSER_ROLE, TOKEN_ISSUER_ROLE],
+			[admin.address, admin.address, tokenIssuer.address]
+		);
 		await tco2Factory.addToAllowedBridges(bridge.address);
+	});
+
+	it("should fail to deploy with no assigned admin", async function () {
+		await expect(deployBridge(admin, nctPool.address, [], [])).to.be.revertedWith(
+			"should have at least one admin role"
+		);
+	});
+
+	it("should deploy with assigned roles", async function () {
+		const bridge = await deployBridge(
+			admin,
+			nctPool.address,
+			[DEFAULT_ADMIN_ROLE, PAUSER_ROLE, TOKEN_ISSUER_ROLE],
+			[admin.address, admin.address, tokenIssuer.address]
+		);
+		expect(await bridge.hasRole(DEFAULT_ADMIN_ROLE, admin.address)).to.be.true;
+		expect(await bridge.hasRole(PAUSER_ROLE, admin.address)).to.be.true;
+		expect(await bridge.hasRole(TOKEN_ISSUER_ROLE, tokenIssuer.address)).to.be.true;
 	});
 
 	it("Should set the right default admin and initial parameters", async function () {
