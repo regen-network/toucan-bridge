@@ -91,6 +91,7 @@ contract ToucanRegenBridge is Pausable, AccessControl {
         bytes32[] memory roles,
         address[] memory accounts
     ) {
+        require(address(nctPool_) != address(0), "should set nctPool to a non zero address");
         require(accounts.length == roles.length, "accounts and roles must have same length");
         nctPool = nctPool_;
         bool hasAdmin = false;
