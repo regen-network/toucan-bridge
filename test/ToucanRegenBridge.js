@@ -50,6 +50,17 @@ describe("Bridge contract", function () {
 		await tco2Factory.addToAllowedBridges(bridge.address);
 	});
 
+	it("should fail to deploy with nct not set", async function () {
+		await expect(
+			deployBridge(
+				admin,
+				ethers.constants.AddressZero,
+				[DEFAULT_ADMIN_ROLE, PAUSER_ROLE, TOKEN_ISSUER_ROLE],
+				[admin.address, admin.address, tokenIssuer.address]
+			)
+		).to.be.revertedWith("should set nctPool to a non zero address");
+	});
+
 	it("should fail to deploy with no assigned admin", async function () {
 		await expect(deployBridge(admin, nctPool.address, [], [])).to.be.revertedWith(
 			"should have at least one admin role"
