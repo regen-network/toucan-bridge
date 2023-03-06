@@ -10,7 +10,7 @@ Regen Ledger provides a registry for all type of eco credits. Vintages are repre
 [Toucan](https://docs.toucan.earth) is a digitized carbon registry implemented on Polygon blockchain.
 The carbon vintages are implemented as ERC20 smart contracts, called TCO2.
 
-This repository provides smart contracts for a one way bridge from TCO2 carbon credits to Regen Ledger Eco Credits Batches. In parallel we are working for a fully decentralized 2-way bridge.
+This repository provides smart contracts for a two way bridge for TCO2 carbon credits between Regen Ledger Eco Credits Batches and an EVM network (currently Polygon).
 
 ## Functionality
 
