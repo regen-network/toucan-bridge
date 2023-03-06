@@ -54,8 +54,11 @@ jobs:
           git submodule update --init --recursive
           yarn install --immutable
 
-      - name: Build smart contract
+      - name: Build bridge
         run: yarn build
 
-      - name: Test smart contract
+      - name: Deploy bridge locally
+        run: yarn hardhat run scripts/deploy-local.js
+
+      - name: Test bridge
         run: yarn test
