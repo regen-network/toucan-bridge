@@ -15,18 +15,27 @@ async function deployLocal() {
 		contracts[key] = env[key].address;
 	}
 
+	const DEFAULT_ADMIN_ROLE = hre.ethers.constants.HashZero;
+	const PAUSER_ROLE = hre.ethers.utils.id("PAUSER_ROLE");
+	const TOKEN_ISSUER_ROLE = hre.ethers.utils.id("TOKEN_ISSUER_ROLE");
+
 	console.log(`Deploying bridge contract with the following addresses:`);
 	console.log(`Owner: ${adminAccount.address}`);
 	console.log(`Token Issuer: ${bridgeAccount.address}`);
 	console.log(`NCT Pool: ${env.nctPool.address}`);
 
-	const bridge = await deployBridge(bridgeAccount.address, env.nctPool.address);
+	const bridge = await deployBridge(
+		adminAccount,
+		env.nctPool.address,
+		[DEFAULT_ADMIN_ROLE, PAUSER_ROLE, TOKEN_ISSUER_ROLE],
+		[adminAccount.address, adminAccount.address, bridgeAccount.address]
+	);
 
 	contracts["bridge"] = bridge.address;
 
 	console.log(`Adding bridge contract address ${bridge.address} to allow list...`);
 
-	await env.tco2Factory.addToAllowlist(bridge.address);
+	await env.tco2Factory.addToAllowedBridges(bridge.address);
 
 	console.log("==== config data ====");
 	console.log(

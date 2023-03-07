@@ -80,7 +80,7 @@ yarn hardhat run scripts/deploy-local.js --network localhost
 Add a Polygonscan API key in your `.env` file, then run:
 
 ```
-yarn hardhat verify <contract_address> <issuer_address> <nct_address> --network <network>
+yarn hardhat verify <contract_address> --network <network> --constructor-args ./scripts/arguments-<network>.js
 ```
 
 ## License
